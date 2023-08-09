@@ -1,7 +1,7 @@
-﻿using graphSample.Interfaces;
+﻿using DirectedGraph.Interfaces;
 using System.Diagnostics.Metrics;
 
-namespace graphSample.Classes
+namespace DirectedGraph.Classes
 {
     public class DirectedGraph<T, K> : AbstractGraph<T, K>
     {

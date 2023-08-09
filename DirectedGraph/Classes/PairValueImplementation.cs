@@ -1,6 +1,6 @@
-﻿using graphSample.Interfaces;
+﻿using DirectedGraph.Interfaces;
 
-namespace graphSample.Classes
+namespace DirectedGraph.Classes
 {
     public class PairValueImplementation<T> : IPairValue<T>
     {

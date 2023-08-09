@@ -1,6 +1,6 @@
-﻿using graphSample.Interfaces;
+﻿using DirectedGraph.Interfaces;
 
-namespace graphSample.Classes
+namespace DirectedGraph.Classes
 {
     public abstract class AbstractGraph<T, K> : IGraph<T, K>
     {

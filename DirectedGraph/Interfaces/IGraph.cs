@@ -1,4 +1,4 @@
-﻿namespace graphSample.Interfaces
+﻿namespace DirectedGraph.Interfaces
 {
     public interface IGraph <T, K>
     {

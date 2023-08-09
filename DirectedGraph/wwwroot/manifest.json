@@ -17,5 +17,11 @@
       "type": "image/png",
       "sizes": "192x192"
     }
-  ]
+  ],
+  "MicrosoftGraph": {
+    "BaseUrl": "https://graph.microsoft.com/v1.0",
+    "Scopes": [
+      "user.read"
+    ]
+  }
 }
