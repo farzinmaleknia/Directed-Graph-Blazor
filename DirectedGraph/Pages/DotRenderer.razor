@@ -1,0 +1,67 @@
+﻿@inject IJSRuntime JsRuntime
+
+@if (Width > 0 && Height > 0)
+{
+	@foreach (var item in graph.GetVertexSet())
+	{
+		<div style="@($"position: absolute; font-size: xx-large; left: {GetRandomPosition(Left, (Width + Left))}px; top: {GetRandomPosition(Top, (Height + Top))}px;")">
+			.
+		</div>
+
+	}
+}
+
+@code {
+	[Parameter]
+	public Classes.DirectedGraph<string, string> graph { get; set; }
+
+	[Parameter]
+	public double Height { get; set; }
+	[Parameter]
+	public double Width { get; set; }
+	[Parameter]
+	public double Top { get; set; }
+	[Parameter]
+	public double Right { get; set; }
+	[Parameter]
+	public double Left { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		//await GetBackGroundDimention();
+	}
+
+	//protected override async Task OnAfterRenderAsync(bool firstRender)
+	//{
+	//	await GetBackGroundDimention();
+
+	//	await base.OnAfterRenderAsync(firstRender);
+	//}
+
+
+	//public async Task GetBackGroundDimention()
+	//{
+
+	//	Dictionary<string, string> BackgroundDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "directed-graph");
+
+	//	Width = double.Parse(BackgroundDimention["width"]);
+	//	Height = double.Parse(BackgroundDimention["height"]);
+	//	Top = double.Parse(BackgroundDimention["top"]);
+	//	Left = double.Parse(BackgroundDimention["left"]);
+
+	//	Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
+
+	//}
+
+	public double GetRandomPosition(double min, double max)
+	{
+
+		Random number = new Random();
+		double num = number.NextDouble() * (max - min) + min;
+
+		return num;
+
+	}
+}
