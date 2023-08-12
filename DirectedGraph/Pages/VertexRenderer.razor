@@ -4,8 +4,9 @@
 {
 	@foreach (var item in graph.GetVertexSet())
 	{
-		<div style="@($"position: absolute; left: {GetRandomX(item, Width)}px; top: {GetRandomY(item, Height)}px;")">
-			<i class="mdi mdi-circle-small mdi-10px"></i>
+		<div class="text-white" style="@($"z-index: 1000; position: absolute; left: {GetRandomX(item, Width)}px; top: {GetRandomY(item, Height)}px;")" title="@($"Name : {item.Name} \nEntries Count : 3")">
+			<i class="mdi mdi-circle-small mdi-36px"></i>
+
 		</div>
 
 	}

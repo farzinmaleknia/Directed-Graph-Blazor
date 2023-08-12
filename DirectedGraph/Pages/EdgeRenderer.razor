@@ -1,10 +1,11 @@
-﻿
+﻿@inject IJSRuntime JsRuntime
+
 
 <div>
     @foreach (var edge in graph.GetEdgeSet())
     {
         Connect(edge.Start.X, edge.Start.Y, edge.End.X, edge.End.Y, 1);
-        <div style='padding:0px; margin:0px; height: 1px; background-color: red; line-height:0.5px; position:absolute; left: @(DivsParams.cx)px; top:@(DivsParams.cy)px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);' />
+        <div style='z-index: 10; color: gray; padding:0px; margin:0px; height: 1px; background-color: gray; line-height:0.5px; position:absolute; left: @(DivsParams.cx + 18)px; top:@(DivsParams.cy + 27)px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'> @temp</div>
     }
 </div>
 
@@ -13,13 +14,14 @@
     public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
 
     private Classes.LineDivParams DivsParams { get; set; }
+    private string temp { get; set; } = "<<<";
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
         DivsParams = new Classes.LineDivParams();
 
+        await JsRuntime.InvokeVoidAsync("makeDivZoomable", "directed-graph");
 	}
 
     private void Connect(double x1, double y1, double x2, double y2, double thickness, string color = "")
@@ -30,10 +32,6 @@
         var cy = ((y1 + y2) / 2) - (thickness / 2);
 
         var angle = Math.Atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
-
-        //var htmlTag = ("<div style='padding:0px; margin:0px; height:"
-        //    + thickness + "px; background-color:" + color + "; line-height:1px; position:absolute; left:" + cx + "px; top:" 
-        //    + cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);' />");
 
         DivsParams.Length = length;
         DivsParams.cx = cx;
