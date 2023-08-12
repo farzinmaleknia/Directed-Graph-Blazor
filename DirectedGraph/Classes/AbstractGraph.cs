@@ -5,8 +5,8 @@ namespace DirectedGraph.Classes
     public abstract class AbstractGraph<T, K> : IGraph<T, K>
     {
         protected readonly List<T> VertexSet = new List<T>();
-        protected readonly List<IPairValue<T>> EdgeSet = new List<IPairValue<T>>();
-        protected readonly Dictionary<IPairValue<T>, K> Weigths = new Dictionary<IPairValue<T>, K>();
+        protected readonly List<PairValueImplementation<T>> EdgeSet = new List<PairValueImplementation<T>>();
+        protected readonly Dictionary<PairValueImplementation<T>, K> Weigths = new Dictionary<PairValueImplementation<T>, K>();
 
         public bool AddVertex(T vertex)
         {
@@ -81,7 +81,7 @@ namespace DirectedGraph.Classes
             return VertexSet;
         }
 
-        public IEnumerable<IPairValue<T>> GetEdgeSet()
+        public IEnumerable<PairValueImplementation<T>> GetEdgeSet()
         {
             return EdgeSet;
         }

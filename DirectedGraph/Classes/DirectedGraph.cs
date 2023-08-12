@@ -10,7 +10,7 @@ namespace DirectedGraph.Classes
             if (v1 == null || v2 == null || weigth == null) throw new ArgumentNullException();
 
             if (!VertexSet.Contains(v1) || !VertexSet.Contains(v2)) return false;
-            IPairValue<T> pair = new PairValueImplementation<T>(v1, v2);
+            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
             if(EdgeSet.Contains(pair)) return false;
 
             EdgeSet.Add(pair);
@@ -22,7 +22,7 @@ namespace DirectedGraph.Classes
         {
             if (v1 == null || v2 == null) throw new ArgumentNullException();
 
-            IPairValue<T> pair = new PairValueImplementation<T>(v1, v2);
+            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
             if (!Weigths.ContainsKey(pair)) throw new ArgumentException();
 
             return Weigths[pair];
@@ -32,7 +32,7 @@ namespace DirectedGraph.Classes
         {
             if (v1 == null || v2 == null) throw new ArgumentNullException();
 
-            IPairValue<T> pair = new PairValueImplementation<T>(v1, v2);
+            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
             if (EdgeSet.Contains(pair))
             {
                 EdgeSet.Remove(pair);
@@ -71,7 +71,7 @@ namespace DirectedGraph.Classes
 
             int counter = 0;
             foreach (var pair in EdgeSet)
-                if (pair.GetFirst().Equals(vertex))
+                if (pair.Start.Equals(vertex))
                     counter++;
             return counter;
         }
@@ -84,17 +84,17 @@ namespace DirectedGraph.Classes
 
             int counter = 0;
             foreach (var pair in EdgeSet)
-                if (pair.GetSecond().Equals(vertex))
+                if (pair.End.Equals(vertex))
                     counter++;
             return counter;
         }
 
         public override IEnumerable<T> AdjacentVertices(T vertex)
         {
-            foreach (IPairValue<T> p in EdgeSet)
+            foreach (PairValueImplementation<T> p in EdgeSet)
             {
-                if (p.GetFirst().Equals(vertex))
-                    yield return p.GetSecond();
+                if (p.Start.Equals(vertex))
+                    yield return p.End;
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace DirectedGraph.Interfaces
+﻿using DirectedGraph.Classes;
+
+namespace DirectedGraph.Interfaces
 {
     public interface IGraph <T, K>
     {
@@ -20,20 +22,9 @@
 
         IEnumerable<T> AdjacentVertices(T vertex);
         IEnumerable<T> GetVertexSet();
-        IEnumerable<IPairValue<T>> GetEdgeSet();
-
-
-
-
-
+        IEnumerable<PairValueImplementation<T>> GetEdgeSet();
 
     }
 
-    public interface IPairValue<T>
-    {
-        T GetFirst();
-        T GetSecond();
-        bool Contains(T value);
-    }
 }
  

@@ -2,10 +2,13 @@
 
 namespace DirectedGraph.Classes
 {
-    public class PairValueImplementation<T> : IPairValue<T>
+    public class PairValueImplementation<T>
     {
         private readonly T _t1;
         private readonly T _t2;
+
+        public T Start { get { return _t1; } }
+        public T End { get { return _t2; } }
 
         public PairValueImplementation(T t1, T t2)
         {
@@ -19,16 +22,6 @@ namespace DirectedGraph.Classes
         public bool Contains(T value)
         {
             return value.Equals(_t1) || value.Equals(_t2);
-        }
-
-        public T GetFirst()
-        {
-            return _t1;
-        }
-
-        public T GetSecond()
-        {
-            return _t2;
         }
 
         public override bool Equals(object o) 

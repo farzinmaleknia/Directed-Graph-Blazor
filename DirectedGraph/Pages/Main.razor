@@ -20,12 +20,16 @@
 		}
 		else
 		{
-			<DotRenderer 
+			<VertexRenderer 
 				graph="graph"
 				Height="@Height"
 				Width="@Width"
 				Top="@Top"
 				Left="@Left" />
+
+
+			<EdgeRenderer 
+				graph="graph"/>
 		}
 
 
@@ -33,7 +37,7 @@
 </div>
 
 @code {
-	public Classes.DirectedGraph<string, string> graph { get; set; }
+	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
 
 	private double HeightMain { get; set; }
 	private double WidthMain { get; set; }
@@ -49,11 +53,30 @@
 	{
 		await base.OnInitializedAsync();
 
-		graph = new Classes.DirectedGraph<string, string>();
+		graph = new Classes.DirectedGraph<Classes.Vertex, string>();
 
-		graph.AddVertex(new[] { "A", "B", "C", "D", "E" });
-		graph.AddEdge("A", "B", "label1");
-		graph.AddEdge("C", "E", "label2");
+		Classes.Vertex A = new Classes.Vertex(){Name= "A"};
+		Classes.Vertex B = new Classes.Vertex(){Name= "B"};
+		Classes.Vertex C = new Classes.Vertex(){Name= "C"};
+		Classes.Vertex D = new Classes.Vertex(){Name= "D"};
+		Classes.Vertex E = new Classes.Vertex(){Name= "E"};
+		Classes.Vertex F = new Classes.Vertex(){Name= "F"};
+		Classes.Vertex G = new Classes.Vertex(){Name= "G"};
+		Classes.Vertex H = new Classes.Vertex(){Name= "H"};
+		Classes.Vertex I = new Classes.Vertex(){Name= "I"};
+		Classes.Vertex J = new Classes.Vertex(){Name= "J"};
+		Classes.Vertex K = new Classes.Vertex(){Name= "K"};
+		Classes.Vertex L = new Classes.Vertex(){Name= "L"};
+		Classes.Vertex M = new Classes.Vertex(){Name= "M"};
+		Classes.Vertex N = new Classes.Vertex(){Name= "N"};
+		Classes.Vertex O = new Classes.Vertex(){Name= "O"};
+		Classes.Vertex P = new Classes.Vertex(){Name= "P"};
+
+		graph.AddVertex(new List<Classes.Vertex> { A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P });
+
+		graph.AddEdge(A, B, "label1");
+		graph.AddEdge(C, E, "label2");
+		graph.AddEdge(D, A, "label3");
 
 		await GetBodyDimention();
 		await GetBackGroundDimention();
@@ -62,6 +85,11 @@
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		await GetBackGroundDimention();
+
+		//foreach(var item in graph.GetVertexSet())
+		//{
+		//	Console.WriteLine($"{item.Name} - {item.X} - {item.Y}");
+		//}
 
 		await base.OnAfterRenderAsync(firstRender);
 	}
@@ -85,7 +113,7 @@
 		Top = double.Parse(BackgroundDimention["top"]);
 		Left = double.Parse(BackgroundDimention["left"]);
 
-		Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
+		//Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
 
 	}
 
