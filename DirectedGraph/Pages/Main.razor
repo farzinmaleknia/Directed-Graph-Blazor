@@ -3,38 +3,32 @@
 @inject IJSRuntime JsRuntime
 
 
-@if(true)
+@if(isBodyLoaded)
 {
 	<h3>Directed Graph</h3>
-	
-}
-
-<div class="bg-dark bg-opacity-50" style="@($"position: absolute; height: {HeightMain}px; width: {WidthMain}px; top: 0; left: 0;")">
-	<div id="directed-graph" class="bg-dark" style="@($"position: absolute; height: 80%; width: 80%; top: {(HeightMain)*0.10}px; left: {(WidthMain)*0.10}px;")">
-
-		@if(!isClicked)
-		{
-			<button class="btn btn-dark m-5" @onclick="() => GetDimentions()">
-				Click Here to show graph
-			</button>
-		}
-		else
-		{
-			<VertexRenderer 
-				graph="graph"
-				Height="@Height"
-				Width="@Width"
-				Top="@Top"
-				Left="@Left" />
 
 
-			<EdgeRenderer 
-				graph="graph"/>
-		}
+	<div class="bg-dark bg-opacity-50" style="@($"position: absolute; height: {HeightMain}px; width: {WidthMain}px; top: 0; left: 0;")">
+		<div id="directed-graph" class="bg-dark" style="@($"position: absolute; height: 80%; width: 80%; top: {(HeightMain)*0.10}px; left: {(WidthMain)*0.10}px;")">
+			@(isHtmlRenderd = true)
+			@if(Height > 0)
+			{
+				<VertexRenderer graph="graph"
+							Height="@Height"
+							Width="@Width"
+							Top="@Top"
+							Left="@Left" />
+
+				<EdgeRenderer graph="graph" />
+			}
 
 
+
+		</div>
 	</div>
-</div>
+
+
+}
 
 @code {
 	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
@@ -48,6 +42,9 @@
 	private double Left { get; set; }
 
 	private bool isClicked = false;
+	private bool isBodyLoaded = false;
+	private bool stateNeeded = true;
+	private bool isHtmlRenderd = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -79,17 +76,31 @@
 		graph.AddEdge(D, A, "label3");
 
 		await GetBodyDimention();
-		await GetBackGroundDimention();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		await GetBackGroundDimention();
 
 		//foreach(var item in graph.GetVertexSet())
 		//{
 		//	Console.WriteLine($"{item.Name} - {item.X} - {item.Y}");
 		//}
+
+		if (!firstRender)
+		{
+			if (!isBodyLoaded)
+			{
+				await GetBodyDimention();
+
+				StateHasChanged();
+			}
+			if (isBodyLoaded)
+			{
+				await GetBackGroundDimention();
+				
+			}
+		}
+
 
 		await base.OnAfterRenderAsync(firstRender);
 	}
@@ -101,29 +112,37 @@
 		WidthMain = double.Parse(displayDimention["width"]);
 		HeightMain = double.Parse(displayDimention["height"]);
 
+		if (HeightMain > 100)
+		{
+
+			isBodyLoaded = true;
+		}
 	}	
 
 	public async Task GetBackGroundDimention()
 	{
-		//await Task.Delay(5000);
-		Dictionary<string, string> BackgroundDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "directed-graph");
 
-		Width = double.Parse(BackgroundDimention["width"]);
-		Height = double.Parse(BackgroundDimention["height"]);
-		Top = double.Parse(BackgroundDimention["top"]);
-		Left = double.Parse(BackgroundDimention["left"]);
+		if (isBodyLoaded && isHtmlRenderd)
+		{
+			//await Task.Delay(5000);
+			Dictionary<string, string> BackgroundDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "directed-graph");
 
-		//Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
 
-	}
 
-	public double GetRandomPosition(double max)
-	{
+			Width = double.Parse(BackgroundDimention["width"]);
+			Height = double.Parse(BackgroundDimention["height"]);
+			Top = double.Parse(BackgroundDimention["top"]);
+			Left = double.Parse(BackgroundDimention["left"]);
 
-		Random number = new Random();
-		double num = number.NextDouble() * (max - 1) + 1;
+			//Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
 
-		return num;
+			if(stateNeeded)
+			{
+				StateHasChanged();
+				stateNeeded = false;
+			}
+		}
+
 
 	}
 

@@ -5,7 +5,11 @@
     @foreach (var edge in graph.GetEdgeSet())
     {
         Connect(edge.Start.X, edge.Start.Y, edge.End.X, edge.End.Y, 1);
-        <div style='z-index: 10; color: gray; padding:0px; margin:0px; height: 1px; background-color: gray; line-height:0.5px; position:absolute; left: @(DivsParams.cx + 18)px; top:@(DivsParams.cy + 27)px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'> @temp</div>
+        <div style='z-index: 10; color: gray; padding:0px; margin:0px; height: 1px; background-color: gray; line-height:0.5px; position:absolute; left: @(DivsParams.cx + 18)px; top:@(DivsParams.cy + 27)px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'>
+            <div style="padding-top: 1px">
+                @temp
+            </div>
+        </div>
     }
 </div>
 

@@ -1,9 +1,9 @@
 function getElementDimension(id) {
     const dimention = document.getElementById(`${id}`);
-
+    console.log(id);
     if (dimention) {
         var offsets = dimention.getBoundingClientRect();
-
+        console.log(2);
         return {
             height: `${dimention.offsetHeight}`,
             width: `${dimention.offsetWidth}`,
