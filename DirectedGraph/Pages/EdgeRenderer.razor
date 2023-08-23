@@ -4,29 +4,56 @@
 <div>
     @foreach (var edge in graph.GetEdgeSet())
     {
-        Connect(edge.Start.X, edge.Start.Y, edge.End.X, edge.End.Y, 1);
-        <div style='z-index: 10; color: gray; padding:0px; margin:0px; height: 1px; background-color: gray; line-height:0.5px; position:absolute; left: @(DivsParams.cx + 18)px; top:@(DivsParams.cy + 27)px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'>
-            <div style="padding-top: 1px">
-                @temp
+        if (EdgeFilterMethod(EdgeFilter, edge))
+        {
+            Connect((edge.Start.X + (edge.Start.IconSize / 2)), (edge.Start.Y + ((edge.Start.IconSize) / 2)), (edge.End.X + (edge.End.IconSize / 2)), (edge.End.Y + (edge.End.IconSize / 2)), 0.1);
+            <div style='border: none; border-top:  1px dashed gray; z-index: 10; color:gray; padding:0px; margin:0px; height: 0.1px; background-color: none; line-height:0.1px; position:absolute; left: @(DivsParams.cx)px; top:@(DivsParams.cy )px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'>
+                <div title="@($"From : {edge.Start.Name} \nTo : {edge.End.Name}")">
+                   @arrow
+                </div>
             </div>
-        </div>
+        }
+
+
     }
 </div>
 
+
+
 @code {
+
+    //////////////// <summary>
+    /// //////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
     [Parameter]
-    public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+    public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }    
+
+    [Parameter]
+    public List<List<Classes.Vertex>> VertexesGroups { get; set; }    
+
+    [Parameter]
+    public List<int> Stores { get; set; }
+
+    [Parameter]
+    public string EdgeFilter { get; set; }
 
     private Classes.LineDivParams DivsParams { get; set; }
-    private string temp { get; set; } = "<<<";
+    private string arrow { get; set; } = "<";
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         DivsParams = new Classes.LineDivParams();
 
-        await JsRuntime.InvokeVoidAsync("makeDivZoomable", "directed-graph");
-	}
+        EdgeFilter = "";
+
+        await JsRuntime.InvokeVoidAsync("makeDivZoomable", "Zoomable");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
 
     private void Connect(double x1, double y1, double x2, double y2, double thickness, string color = "")
     {
@@ -41,7 +68,24 @@
         DivsParams.cx = cx;
         DivsParams.cy = cy;
         DivsParams.angle = angle;
+    }
 
-
+    public bool EdgeFilterMethod(string filter , Classes.PairValueImplementation<Classes.Vertex> edge)
+    {
+        bool condition;
+        switch (filter)
+        {
+            case "ToMain":
+                condition = Stores.Contains(int.Parse(edge.End.Name));
+                return condition;
+            case "MainTo":
+                condition = Stores.Contains(int.Parse(edge.Start.Name));
+                return condition;
+            case "NotMain":
+                condition = !Stores.Contains(int.Parse(edge.Start.Name)) && !Stores.Contains(int.Parse(edge.End.Name));
+                return condition;
+            default:
+                return true;
+        }
     }
 }

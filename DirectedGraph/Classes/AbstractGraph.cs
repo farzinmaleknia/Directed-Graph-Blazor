@@ -74,7 +74,7 @@ namespace DirectedGraph.Classes
             return EdgeSet.Count;
         }
 
-        public abstract IEnumerable<T> AdjacentVertices(T vertex);
+        public abstract void AdjacentVertices(List<T> list, T vertex);
 
         public IEnumerable<T> GetVertexSet()
         {

@@ -1,0 +1,465 @@
+﻿@page "/Main/DirectedGraph"
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager Navigation
+
+
+@if(isBodyLoaded)
+{
+	<div class="bg-dark bg-opacity-50" style="@($"position: absolute; height: {HeightMain}px; width: {WidthMain}px; top: 0; left: 0;")">
+
+		<div class="d-flex flex-row-reverse mt-2 mx-4">
+			<button class="btn btn-light btn-sm rounded-circle" style="z-index: 100;" title="Refresh Data" @onclick="RefreshPage">
+				<i class="mdi mdi-refresh mdi-24px"></i>
+			</button>
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="() => RefreshVertexPositions(true)">
+				<i class="mdi mdi-adjust mdi-24px"></i>
+			</button>
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Back" @onclick="NavigateToMain">
+				<i class="mdi mdi-close mdi-24px"></i>
+			</button>
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="() => RefreshVertexPositions(false)">
+				<i class="mdi mdi-image-size-select-small mdi-24px"></i>
+			</button>
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="OnEdgeFilterClicked">
+				<i class="mdi mdi-filter mdi-24px"></i>
+			</button>
+		</div>
+
+		<div id="Zoomable" class="bg-dark bg-gradient" style="@($"position: absolute; height: {HeightMain * 0.9}px; width: {WidthMain * 0.9}px; top: {HeightMain * 0.05}px; left: {WidthMain * 0.05}px;")">
+			<div id="directed-graph" class="bg-dark" style="@($"position: absolute; height: {((HeightMain * 0.9) - 10)}px; width: {(WidthMain * 0.9 - 10)}px; top: 5px; left: 5px;")">
+				@(isHtmlRenderd = true)
+				@if (Height > 0)
+				{
+					<VertexRenderer graph="graph"
+						Height="@Height"
+						Width="@Width"
+						Top="@Top"
+						Left="@Left"
+						VertexesGroups="VertexesGroups"
+						SingleVertexes="SingleVertexes"
+						isFirstRender="orderToReposition"
+						OnVertexChanged="passingVertexFromVertexRenderer"/>
+
+					<EdgeRenderer graph="graph" 
+						VertexesGroups="VertexesGroups"
+						Stores="Stores"
+						EdgeFilter="EdgeFilter"/>
+				}
+			</div>
+		</div>
+
+		<div class="modal fade" id="vertexModel" tabindex="-1" aria-labelledby="vertexModelLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div>
+							<div class="d-flex justify-content-between mb-3">
+								<h1 class="modal-title fs-5" id="vertexModelLabel">@(passedVertex.Name)</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+
+							<ul style="list-style-type:none;">
+								<li>
+									<div class="row mb-2">
+										<div class="col-sm-6">
+											Total Connection :
+										</div>
+										<div class="col-sm-6">
+											@(graph.InDegree(passedVertex) + graph.OutDegree(passedVertex)),
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="row mb-2">
+										<div class="col-sm-6">
+											Total Entries :
+										</div>
+										<div class="col-sm-6">
+											@(graph.InDegree(passedVertex)),
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="row mb-2">
+										<div class="col-sm-6">
+											Total Departures :
+										</div>
+										<div class="col-sm-6">
+											@(graph.OutDegree(passedVertex)),
+										</div>
+									</div>
+								</li>
+								<li>
+									<div class="row mb-2">
+										<div class="col-sm-6">
+											All the connection :
+										</div>
+										<div class="col-sm-6">
+											@foreach (var item in passedVertex.Adjacents)
+											{
+												<span>@(item.Name), </span>
+											}
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+
+@code {
+	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+	public Classes.Vertex passedVertex { get; set; }
+
+	public List<List<Classes.Vertex>> VertexesGroups { get; set; }
+	public List<Classes.Vertex> SingleVertexes { get; set; }
+
+	public List<int> Stores { get; set; }
+
+	public List<string> EdgeFilterMode { get; set; }
+	public string EdgeFilter { get; set; }
+	private int EdgeFilterCounter { get; set; }
+
+	private double HeightMain { get; set; }
+	private double WidthMain { get; set; }
+	private double Height { get; set; }
+	private double Width { get; set; }
+	private double Top { get; set; }
+	private double Right { get; set; }
+	private double Left { get; set; }
+
+	private bool isBodyLoaded { get; set; }
+	private bool stateNeeded { get; set; }
+	private bool isHtmlRenderd { get; set; }
+
+	private bool orderToReposition { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		graph = new Classes.DirectedGraph<Classes.Vertex, string>();
+		passedVertex = new Classes.Vertex();
+
+		isBodyLoaded = false;
+		stateNeeded = true;
+		isHtmlRenderd = false;
+		orderToReposition = false;
+
+		VertexesGroups = new List<List<Classes.Vertex>>();
+		SingleVertexes = new List<Classes.Vertex>();
+
+		Stores = new List<int>();
+
+		EdgeFilter = "";
+		EdgeFilterCounter = 0;
+
+		EdgeFilterMode = new List<string>() { "ToMain", "MainTo", "NotMain", ""};
+
+		Random rnd = new Random();
+
+		for (int j = 0; j < 10; j++)
+		{
+			int num = rnd.Next(0, 100);
+			if (!Stores.Contains(num))
+			{
+				Stores.Add(num);
+			}
+		}
+
+		for(int i = 0; i < 100; i++)
+		{
+			graph.AddVertex(new Classes.Vertex() { Name = i.ToString() });
+		}
+
+		for(int i = 0; i < 200; i++)
+		{
+			int num1 = rnd.Next(0, 100);
+			int num2 = 0;
+			int possibilityNum = rnd.Next(0, 100);
+
+
+			if(possibilityNum < 75)
+			{
+				num2 = Stores[(rnd.Next(0, Stores.Count))];
+			}
+			else
+			{
+				num2 = rnd.Next(0, 100);
+			}
+
+			while (num1 == num2)
+			{
+				if (possibilityNum < 75)
+				{
+					num2 = Stores[(rnd.Next(0, Stores.Count))];
+				}
+				else
+				{
+					num2 = rnd.Next(0, 100);
+				}
+			}
+
+			var v1 = graph.GetVertexSet().FirstOrDefault(v => v.Name == (num1).ToString());
+			var v2 = graph.GetVertexSet().FirstOrDefault(v => v.Name == (num2).ToString());
+
+			if(v1 != null && v2 != null)
+			{
+				graph.AddEdge(v1, v2, "Label #" + (i + 1));
+
+			}
+		}
+
+		foreach (var item in graph.GetVertexSet())
+		{
+			graph.AdjacentVertices(item.Adjacents, item);
+			graph.EntriesVertices(item.Entries, item);
+
+			var count = graph.InDegree(item);
+			switch (count)
+			{
+				case 0:
+				case 1:
+					item.Color = "green";
+					item.IconSize = 4;
+					continue;
+				case 2:
+					item.Color = "yellow";
+					item.IconSize = 5;
+					continue;
+				case 3:
+				case 4:
+					item.Color = "orange";
+					item.IconSize = 6;
+					continue;
+				case > 4:
+					item.Color = "red";
+					item.IconSize = 7;
+					continue;
+				default:
+					continue;
+			}
+
+
+		}
+
+		foreach (var item in graph.GetVertexSet())
+		{
+			SingleVertexes.Add(item);
+		}
+
+		foreach (var item in SingleVertexes)
+		{
+			if(graph.InDegree(item) > 4 && !item.IsInGroup)
+			{
+				VertexesGroups.Add(new List<Classes.Vertex>() { item });
+				item.IsInGroup = true;
+
+				foreach (var i in item.Adjacents)
+				{
+					if(!i.IsInGroup && i.Entries.Count < 5)
+					{
+						VertexesGroups.FirstOrDefault(l => l.Contains(item)).Add(i);
+						i.IsInGroup = true;
+					}
+
+				}
+			}
+		}
+
+		foreach (var item in SingleVertexes)
+		{
+			if (graph.InDegree(item) > 2 && graph.InDegree(item) < 5 && !item.IsInGroup)
+			{
+				VertexesGroups.Add(new List<Classes.Vertex>() { item });
+				item.IsInGroup = true;
+
+				foreach (var i in item.Adjacents)
+				{
+					if(!i.IsInGroup)
+					{
+						VertexesGroups.FirstOrDefault(l => l.Contains(item)).Add(i);
+						i.IsInGroup = true;
+					}
+
+				}
+			}
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			foreach (var item in SingleVertexes)
+			{
+				if(item.Entries.Count < 5)
+				{
+					var itemList = VertexesGroups.FirstOrDefault(l => l.Contains(item));
+					if (itemList == null)
+					{
+						itemList = new List<Classes.Vertex>();
+					}
+					int differenceNum = item.Adjacents.Except(itemList).Count();
+
+					foreach (var list in VertexesGroups)
+					{
+						if (list != itemList && differenceNum > item.Adjacents.Except(list).Count())
+						{
+							itemList.Remove(item);
+							list.Add(item);
+							itemList = list;
+							differenceNum = item.Adjacents.Except(list).Count();
+						}
+					}
+				}
+
+			}
+		}
+
+		int counter = 0;
+
+		foreach (var edge in graph.GetEdgeSet())
+		{
+			var startList = VertexesGroups.FirstOrDefault(l => l.Contains(edge.Start));
+			var endList = VertexesGroups.FirstOrDefault(l => l.Contains(edge.End));
+
+			if(startList != endList)
+			{
+				counter++;
+			}
+		}
+
+
+		foreach (var list in VertexesGroups)
+		{
+			foreach (var v in list)
+			{
+				Console.WriteLine(v.Entries.Count);
+			}
+
+			Console.WriteLine("-----------------------------");
+		}
+
+
+		foreach (var list in VertexesGroups)
+		{
+			foreach (var v in list)
+			{
+				SingleVertexes.Remove(v);
+			}
+		}
+
+		VertexesGroups = VertexesGroups.Where(l => l.Count != 0).ToList();
+
+		passedVertex = graph.GetVertexSet().First();
+
+		await GetBodyDimention();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+
+		//foreach(var item in graph.GetVertexSet())
+		//{
+		//	Console.WriteLine($"{item.Name} - {item.X} - {item.Y}");
+		//}
+
+		if (!firstRender)
+		{
+			if (!isBodyLoaded)
+			{
+				await GetBodyDimention();
+
+				StateHasChanged();
+			}
+			if (isBodyLoaded)
+			{
+				await GetBackGroundDimention();
+
+			}
+		}
+
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	public async Task GetBodyDimention()
+	{
+		Dictionary<string, string> displayDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "body");
+
+		WidthMain = double.Parse(displayDimention["width"]);
+		HeightMain = double.Parse(displayDimention["height"]);
+
+		if (HeightMain > 100)
+		{
+			isBodyLoaded = true;
+		}
+	}	
+
+	public async Task GetBackGroundDimention()
+	{
+		if (isBodyLoaded && isHtmlRenderd)
+		{
+			//await Task.Delay(5000);
+			Dictionary<string, string> BackgroundDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "directed-graph");
+
+			Width = double.Parse(BackgroundDimention["width"]);
+			Height = double.Parse(BackgroundDimention["height"]);
+			Top = double.Parse(BackgroundDimention["top"]);
+			Left = double.Parse(BackgroundDimention["left"]);
+
+			//Console.WriteLine($"top: {Top}, left: {Left}, height: {Height}, width: {Width}");
+
+			if(stateNeeded)
+			{
+				StateHasChanged();
+				stateNeeded = false;
+			}
+		}
+	}
+
+	public void NavigateToMain()
+	{
+		Navigation.NavigateTo("/Main");
+	}
+
+	public void RefreshPage()
+	{
+		Navigation.NavigateTo("/Main/DirectedGraph", true);
+	}
+
+	public async Task RefreshVertexPositions(bool alsoPositions)
+	{
+		await JsRuntime.InvokeVoidAsync("refreshScale", "Zoomable", $"{(HeightMain) * 0.05}", $"{(WidthMain) * 0.05}");
+		if(alsoPositions)
+		{
+			orderToReposition = true;
+			await GetBackGroundDimention();
+		}
+
+	}
+
+	public void passingVertexFromVertexRenderer(Classes.Vertex vertex)
+	{
+		passedVertex = vertex;
+	}
+
+	public void OnEdgeFilterClicked()
+	{
+		EdgeFilter = EdgeFilterMode[EdgeFilterCounter];
+
+		if(EdgeFilterCounter == 3)
+		{
+			EdgeFilterCounter = 0;
+		}
+		else
+		{
+			EdgeFilterCounter++;
+		}
+	}
+}

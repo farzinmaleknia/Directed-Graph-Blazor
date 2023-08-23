@@ -20,7 +20,7 @@ namespace DirectedGraph.Interfaces
         int VerticesNumber();
         int EdgesNumber();
 
-        IEnumerable<T> AdjacentVertices(T vertex);
+        void AdjacentVertices(List<T> list, T vertex);
         IEnumerable<T> GetVertexSet();
         IEnumerable<PairValueImplementation<T>> GetEdgeSet();
 

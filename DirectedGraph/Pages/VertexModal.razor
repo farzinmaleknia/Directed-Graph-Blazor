@@ -1,0 +1,45 @@
+﻿
+@if(graph != null && vertex != null)
+{
+    <div class="modal fade" id="vertexModel" name="vertexModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="vertexModelLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="vertexModelLabel">@(vertex.Name)</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <ul>
+                            <li>
+                                Total Connection : @(graph.InDegree(vertex) + graph.OutDegree(vertex)),
+                            </li>
+                            <li>
+                                Total Entries : @(graph.InDegree(vertex)),
+                            </li>
+                            <li>
+                                Total Departures : @(graph.OutDegree(vertex)),
+                            </li>
+                            <li>
+                                @*All the connection : @(graph.AdjacentVertices(vertex)),*@
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+
+    [Parameter]
+    public Classes.Vertex vertex { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}

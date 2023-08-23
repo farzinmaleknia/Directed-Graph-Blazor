@@ -11,7 +11,7 @@ namespace DirectedGraph.Classes
 
             if (!VertexSet.Contains(v1) || !VertexSet.Contains(v2)) return false;
             PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
-            if(EdgeSet.Contains(pair)) return false;
+            if (EdgeSet.Contains(pair)) return false;
 
             EdgeSet.Add(pair);
             Weigths[pair] = weigth;
@@ -50,7 +50,7 @@ namespace DirectedGraph.Classes
             if (!VertexSet.Contains(v1) || !VertexSet.Contains(v2)) throw new ArgumentException();
 
             return EdgeSet.Contains(new PairValueImplementation<T>(v1, v2));
-            
+
         }
 
         public override int Degree(T vertex)
@@ -89,12 +89,32 @@ namespace DirectedGraph.Classes
             return counter;
         }
 
-        public override IEnumerable<T> AdjacentVertices(T vertex)
+        public override void AdjacentVertices(List<T> list, T vertex)
         {
             foreach (PairValueImplementation<T> p in EdgeSet)
             {
+                if (p.End.Equals(vertex))
+                {
+                    list.Add(p.Start);
+
+                }
                 if (p.Start.Equals(vertex))
-                    yield return p.End;
+                {
+                    list.Add(p.End);
+
+                }
+            }
+        }
+
+        public void EntriesVertices(List<T> list, T vertex)
+        {
+            foreach (PairValueImplementation<T> p in EdgeSet)
+            {
+                if (p.End.Equals(vertex))
+                {
+                    list.Add(p.Start);
+
+                }
             }
         }
     }
