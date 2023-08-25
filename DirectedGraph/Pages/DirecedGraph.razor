@@ -15,13 +15,13 @@
 			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="() => RefreshVertexPositions(true)">
 				<i class="mdi mdi-adjust mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Back" @onclick="NavigateToMain">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Close" @onclick="NavigateToMain">
 				<i class="mdi mdi-close mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="() => RefreshVertexPositions(false)">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Recenter graph" @onclick="() => RefreshVertexPositions(false)">
 				<i class="mdi mdi-image-size-select-small mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="OnEdgeFilterClicked">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Filter by order : All / To Stores / Stores to / Not stores " @onclick="OnEdgeFilterClicked">
 				<i class="mdi mdi-filter mdi-24px"></i>
 			</button>
 		</div>
@@ -36,15 +36,15 @@
 						Width="@Width"
 						Top="@Top"
 						Left="@Left"
-						VertexesGroups="VertexesGroups"
-						SingleVertexes="SingleVertexes"
-						isFirstRender="orderToReposition"
+						VertexesGroups="@VertexesGroups"
+						SingleVertexes="@SingleVertexes"
+						isFirstRender="@orderToReposition"
 						OnVertexChanged="passingVertexFromVertexRenderer"/>
 
-					<EdgeRenderer graph="graph" 
-						VertexesGroups="VertexesGroups"
-						Stores="Stores"
-						EdgeFilter="EdgeFilter"/>
+					<EdgeRenderer graph="@graph" 
+						VertexesGroups="@VertexesGroups"
+						Stores="@Stores"
+						EdgeFilter="@EdgeFilterValue"/>
 				}
 			</div>
 		</div>
@@ -124,7 +124,7 @@
 	public List<int> Stores { get; set; }
 
 	public List<string> EdgeFilterMode { get; set; }
-	public string EdgeFilter { get; set; }
+	public string EdgeFilterValue { get; set; }
 	private int EdgeFilterCounter { get; set; }
 
 	private double HeightMain { get; set; }
@@ -158,7 +158,7 @@
 
 		Stores = new List<int>();
 
-		EdgeFilter = "";
+		EdgeFilterValue = "";
 		EdgeFilterCounter = 0;
 
 		EdgeFilterMode = new List<string>() { "ToMain", "MainTo", "NotMain", ""};
@@ -435,6 +435,7 @@
 
 	public async Task RefreshVertexPositions(bool alsoPositions)
 	{
+		orderToReposition = false;
 		await JsRuntime.InvokeVoidAsync("refreshScale", "Zoomable", $"{(HeightMain) * 0.05}", $"{(WidthMain) * 0.05}");
 		if(alsoPositions)
 		{
@@ -451,7 +452,7 @@
 
 	public void OnEdgeFilterClicked()
 	{
-		EdgeFilter = EdgeFilterMode[EdgeFilterCounter];
+		EdgeFilterValue = EdgeFilterMode[EdgeFilterCounter];
 
 		if(EdgeFilterCounter == 3)
 		{

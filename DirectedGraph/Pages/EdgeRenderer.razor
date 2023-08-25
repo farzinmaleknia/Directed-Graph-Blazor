@@ -8,7 +8,7 @@
         {
             Connect((edge.Start.X + (edge.Start.IconSize / 2)), (edge.Start.Y + ((edge.Start.IconSize) / 2)), (edge.End.X + (edge.End.IconSize / 2)), (edge.End.Y + (edge.End.IconSize / 2)), 0.1);
             <div style='border: none; border-top:  1px dashed gray; z-index: 10; color:gray; padding:0px; margin:0px; height: 0.1px; background-color: none; line-height:0.1px; position:absolute; left: @(DivsParams.cx)px; top:@(DivsParams.cy )px; width:@(DivsParams.Length)px; -moz-transform:rotate(@(DivsParams.angle)deg); -webkit-transform:rotate(@(DivsParams.angle)deg); -o-transform:rotate(@(DivsParams.angle)deg); -ms-transform:rotate(@(DivsParams.angle)deg); transform:rotate(@(DivsParams.angle)deg);'>
-                <div title="@($"From : {edge.Start.Name} \nTo : {edge.End.Name}")">
+                <div style="padding-top: -1px" title="@($"From : {edge.Start.Name} \nTo : {edge.End.Name}")">
                    @arrow
                 </div>
             </div>

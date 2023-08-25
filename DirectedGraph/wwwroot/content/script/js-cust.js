@@ -108,4 +108,5 @@ function refreshScale(id, top, left) {
     div.style.transformOrigin = `${div.offsetLeft + (div.width / 2)}px ${div.offsetTop + (div.height / 2)}px`;
     div.style.top = top + 'px';
     div.style.left = left + 'px';
+    zX = 1;
 }
