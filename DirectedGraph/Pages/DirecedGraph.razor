@@ -44,67 +44,87 @@
 					<EdgeRenderer graph="@graph" 
 						VertexesGroups="@VertexesGroups"
 						Stores="@Stores"
-						EdgeFilter="@EdgeFilterValue"/>
+						EdgeFilter="@EdgeFilterValue"
+						passedVertex="@passingVertexForFilter"/>
 				}
 			</div>
 		</div>
 
-		<div class="modal fade" id="vertexModel" tabindex="-1" aria-labelledby="vertexModelLabel" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-body">
-						<div>
-							<div class="d-flex justify-content-between mb-3">
-								<h1 class="modal-title fs-5" id="vertexModelLabel">@(passedVertex.Name)</h1>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
+	</div>
 
-							<ul style="list-style-type:none;">
-								<li>
-									<div class="row mb-2">
-										<div class="col-sm-6">
-											Total Connection :
-										</div>
-										<div class="col-sm-6">
-											@(graph.InDegree(passedVertex) + graph.OutDegree(passedVertex)),
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="row mb-2">
-										<div class="col-sm-6">
-											Total Entries :
-										</div>
-										<div class="col-sm-6">
-											@(graph.InDegree(passedVertex)),
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="row mb-2">
-										<div class="col-sm-6">
-											Total Departures :
-										</div>
-										<div class="col-sm-6">
-											@(graph.OutDegree(passedVertex)),
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="row mb-2">
-										<div class="col-sm-6">
-											All the connection :
-										</div>
-										<div class="col-sm-6">
-											@foreach (var item in passedVertex.Adjacents)
-											{
-												<span>@(item.Name), </span>
-											}
-										</div>
-									</div>
-								</li>
-							</ul>
+	<div class="modal fade" id="optionModel" tabindex="-1" aria-labelledby="optionModelLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" style="width:216px;">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div>
+						<button type="button" class="btn btn-primary btn-sm" title="Filter this vertex" data-bs-dismiss="modal" @onclick="OnFilterOneVertex">
+							Filter this vertex
+						</button>
+
+						<button type="button" class="btn btn-success btn-sm" title="Details" data-bs-toggle="modal" data-bs-target="#vertexModel">
+							Details
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="vertexModel" tabindex="-1" aria-labelledby="vertexModelLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div>
+						<div class="d-flex justify-content-between mb-3">
+							<h1 class="modal-title fs-5" id="vertexModelLabel">@(passedVertex.Name)</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
+
+						<ul style="list-style-type:none;">
+							<li>
+								<div class="row mb-2">
+									<div class="col-sm-6">
+										Total Connection :
+									</div>
+									<div class="col-sm-6">
+										@(graph.InDegree(passedVertex) + graph.OutDegree(passedVertex)),
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="row mb-2">
+									<div class="col-sm-6">
+										Total Entries :
+									</div>
+									<div class="col-sm-6">
+										@(graph.InDegree(passedVertex)),
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="row mb-2">
+									<div class="col-sm-6">
+										Total Departures :
+									</div>
+									<div class="col-sm-6">
+										@(graph.OutDegree(passedVertex)),
+									</div>
+								</div>
+							</li>
+							<li>
+								<div class="row mb-2">
+									<div class="col-sm-6">
+										All the connection :
+									</div>
+									<div class="col-sm-6">
+										@foreach (var item in passedVertex.Adjacents)
+										{
+											<span>@(item.Name), </span>
+										}
+									</div>
+								</div>
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -116,7 +136,9 @@
 
 @code {
 	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+
 	public Classes.Vertex passedVertex { get; set; }
+	public Classes.Vertex passingVertexForFilter { get; set; }
 
 	public List<List<Classes.Vertex>> VertexesGroups { get; set; }
 	public List<Classes.Vertex> SingleVertexes { get; set; }
@@ -250,6 +272,8 @@
 
 		}
 
+
+
 		foreach (var item in graph.GetVertexSet())
 		{
 			SingleVertexes.Add(item);
@@ -304,45 +328,28 @@
 					{
 						itemList = new List<Classes.Vertex>();
 					}
-					int differenceNum = item.Adjacents.Except(itemList).Count();
+					int differenceCount = item.Adjacents.Except(itemList).Count();
 
 					foreach (var list in VertexesGroups)
 					{
-						if (list != itemList && differenceNum > item.Adjacents.Except(list).Count())
+						if (list != itemList && differenceCount > item.Adjacents.Except(list).Count())
 						{
 							itemList.Remove(item);
 							list.Add(item);
 							itemList = list;
-							differenceNum = item.Adjacents.Except(list).Count();
+							differenceCount = item.Adjacents.Except(list).Count();
+						}
+						else if (list != itemList && differenceCount == item.Adjacents.Except(list).Count() && list.Count < itemList.Count)
+						{
+							itemList.Remove(item);
+							list.Add(item);
+							itemList = list;
+							differenceCount = item.Adjacents.Except(list).Count();
 						}
 					}
 				}
 
 			}
-		}
-
-		int counter = 0;
-
-		foreach (var edge in graph.GetEdgeSet())
-		{
-			var startList = VertexesGroups.FirstOrDefault(l => l.Contains(edge.Start));
-			var endList = VertexesGroups.FirstOrDefault(l => l.Contains(edge.End));
-
-			if(startList != endList)
-			{
-				counter++;
-			}
-		}
-
-
-		foreach (var list in VertexesGroups)
-		{
-			foreach (var v in list)
-			{
-				Console.WriteLine(v.Entries.Count);
-			}
-
-			Console.WriteLine("-----------------------------");
 		}
 
 
@@ -439,6 +446,7 @@
 		await JsRuntime.InvokeVoidAsync("refreshScale", "Zoomable", $"{(HeightMain) * 0.05}", $"{(WidthMain) * 0.05}");
 		if(alsoPositions)
 		{
+			EdgeFilterCounter = 3;
 			orderToReposition = true;
 			await GetBackGroundDimention();
 		}
@@ -452,6 +460,7 @@
 
 	public void OnEdgeFilterClicked()
 	{
+		orderToReposition = false;
 		EdgeFilterValue = EdgeFilterMode[EdgeFilterCounter];
 
 		if(EdgeFilterCounter == 3)
@@ -462,5 +471,13 @@
 		{
 			EdgeFilterCounter++;
 		}
+	}
+
+	public void OnFilterOneVertex()
+	{
+		orderToReposition = false;
+		passingVertexForFilter = passedVertex;
+		EdgeFilterValue = "OneVertex";
+		EdgeFilterCounter = 3;
 	}
 }

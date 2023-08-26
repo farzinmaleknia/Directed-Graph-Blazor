@@ -22,9 +22,6 @@
 
 @code {
 
-    //////////////// <summary>
-    /// //////////////////////////////////////////////////////////////////////////////////
-    /// </summary>
     [Parameter]
     public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }    
 
@@ -37,13 +34,21 @@
     [Parameter]
     public string EdgeFilter { get; set; }
 
+    [Parameter]
+    public Classes.Vertex passedVertex { get; set; }
+
     private Classes.LineDivParams DivsParams { get; set; }
     private string arrow { get; set; } = "<";
+
+
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
         DivsParams = new Classes.LineDivParams();
+
+        passedVertex = new Classes.Vertex();
 
         EdgeFilter = "";
 
@@ -83,6 +88,12 @@
                 return condition;
             case "NotMain":
                 condition = !Stores.Contains(int.Parse(edge.Start.Name)) && !Stores.Contains(int.Parse(edge.End.Name));
+                return condition;
+            case "OneVertex":
+                condition = edge.Start.Name == passedVertex.Name || edge.End.Name == passedVertex.Name;
+
+                Console.WriteLine($"Start : {edge.Start.Name} - End : {edge.End.Name} - vertex : {passedVertex.Name}");
+
                 return condition;
             default:
                 return true;

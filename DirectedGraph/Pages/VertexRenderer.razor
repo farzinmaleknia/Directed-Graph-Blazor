@@ -8,9 +8,8 @@
 			@onclick="() => passingVertex(item)"
 			style="@($"color: black; z-index: 20; font-size: {item.IconSize}px; color: {item.Color}; position: absolute; left: {(item.X)}px; top: {item.Y}px;")"
 			title="@($"Name : {item.Name} \nTotal Entries : {graph.InDegree(item)} \nTotal Departures : {graph.OutDegree(item)}")" 
-			data-bs-toggle="modal" 
-			data-bs-target="#vertexModel"
-		/>
+			data-bs-toggle="modal"
+			data-bs-target="#optionModel" />
 
 	}
 
@@ -206,8 +205,6 @@
 							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
 						}
 					}
-
-					Console.WriteLine($"distance : {distance} - {vertex.Entries.Count}");
 				}
 			}
 		}
