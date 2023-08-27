@@ -31,29 +31,26 @@ function makeDivZoomable(id) {
         var dir;
         dir = (e.deltaY > 0) ? -0.1 : 0.1;
 
-
-        // returns matrix(1,0,0,1,0,0)
         var matrix = window.getComputedStyle(div).transform;
         var matrixArray = matrix.replace("matrix(", "").split(",");
         var preScale = parseFloat(matrixArray[0]);
 
         var newScale = e.deltaY > 0 ? preScale - 0.1 : preScale + 0.1;
 
+        var lastTOx = newTOx;
+        var lastTOy = newTOy;
+
         mousePosition = {
             x: e.clientX - div.offsetLeft,
             y: e.clientY - div.offsetTop
-
         };
 
-        var newTx = 0;
-        var newTy = 0;
+        var newTx = ((mousePosition.x - lastTOx) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
+        var newTy = ((mousePosition.y - lastTOy) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
 
-        if (preScale > 1) {
-            newTx = ((mousePosition.x - newTOx) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
-            newTy = ((mousePosition.y - newTOy) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
-        } else {
-            newTx = -((mousePosition.x - newTOx) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
-            newTy = -((mousePosition.y - newTOy) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
+        if (preScale < 1) {
+            newTx = -newTx;
+            newTy = -newTy;
         }
 
         newTOx = mousePosition.x;
@@ -65,8 +62,8 @@ function makeDivZoomable(id) {
             zX += dir;
 
             if (!isNaN(newTx)) {
-                Tx = Tx + newTx;
-                Ty = Ty + newTy;
+                Tx += newTx;
+                Ty += newTy;
 
                 div.style.transform = `scale(${zX}) translate(${Tx}px, ${Ty}px)`;
 
