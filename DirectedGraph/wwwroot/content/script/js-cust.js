@@ -22,6 +22,10 @@ function makeDivZoomable(id) {
     var isDown = false;
     var div = document.getElementById(`${id}`); //.getElementsByTagName('p')
     zX = 1;
+    newTOx = 0;
+    newTOy = 0;
+    Tx = 0;
+    Ty = 0;
 
     window.addEventListener('wheel', function (e) {
         var dir;
@@ -35,33 +39,40 @@ function makeDivZoomable(id) {
 
         var newScale = e.deltaY > 0 ? preScale - 0.1 : preScale + 0.1;
 
-        var rec = div.getBoundingClientRect();
-
         mousePosition = {
-
             x: e.clientX - div.offsetLeft,
             y: e.clientY - div.offsetTop
 
         };
 
-        if (!isNaN(preScale)) {
-            var newTx = (mousePosition.x ) / 1;
-            var newTy = (mousePosition.y ) / 1;
+        var newTx = 0;
+        var newTy = 0;
 
-
-            div.style.transformOrigin = `${newTx}px ${newTy}px`;
-
+        if (preScale > 1) {
+            newTx = ((mousePosition.x - newTOx) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
+            newTy = ((mousePosition.y - newTOy) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
+        } else {
+            newTx = -((mousePosition.x - newTOx) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
+            newTy = -((mousePosition.y - newTOy) / (((Math.abs(preScale))) * 10)) * (Math.abs(preScale - 1) * 10);
         }
 
-        console.log(`newScale ${newScale} - preScale ${preScale} - `)
+        newTOx = mousePosition.x;
+        newTOy = mousePosition.y;
+
+        div.style.transformOrigin = `${newTOx}px ${newTOy}px`;
+
         if (newScale > 0.09 || preScale != 0.1) {
-
             zX += dir;
-            div.style.transform = `scale(${zX})`;
-            //div.style.transform = `translate(${newTx}, ${newTy})`;
 
-            //div.style.translate.x += (-newTx * dir * 2) + (div.offsetWidth * dir);
-            //div.style.translate.y += (-newTy * dir * 2) + (div.offsetHeight * dir);
+            if (!isNaN(newTx)) {
+                Tx = Tx + newTx;
+                Ty = Ty + newTy;
+
+                div.style.transform = `scale(${zX}) translate(${Tx}px, ${Ty}px)`;
+
+            } else {
+                div.style.transform = `scale(${zX})`;
+            }
         }
 
 
@@ -109,4 +120,6 @@ function refreshScale(id, top, left) {
     div.style.top = top + 'px';
     div.style.left = left + 'px';
     zX = 1;
+    Tx = 0;
+    Ty = 0;
 }
