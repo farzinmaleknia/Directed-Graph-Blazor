@@ -1,0 +1,235 @@
+﻿@inject IJSRuntime JsRuntime
+
+@if (Width > 0 && Height > 0)
+{
+	@foreach (var item in graph.GetVertexSet())
+	{
+		<img src="@($"./images/circle-{item.Color}.png")" alt="" width="@(item.IconSize)"
+			@onclick="() => passingVertex(item)"
+			style="@($"color: black; z-index: 20; font-size: {item.IconSize}px; color: {item.Color}; position: absolute; left: {(item.X)}px; top: {item.Y}px;")"
+			title="@($"Name : {item.Name} \nTotal Entries : {graph.InDegree(item)} \nTotal Departures : {graph.OutDegree(item)}")" 
+			data-bs-toggle="modal"
+			data-bs-target="#optionModel" />
+
+	}
+
+	@(isFirstRender = false)
+}
+
+
+
+@code {
+	[Parameter]
+	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+
+	[Parameter]
+	public EventCallback<Classes.Vertex> OnVertexChanged { get; set; }
+
+	[Parameter]
+	public List<List<Classes.Vertex>> VertexesGroups { get; set; }
+
+	[Parameter]
+	public List<Classes.Vertex> SingleVertexes { get; set; }
+
+	[Parameter]
+	public bool isFirstRender { get; set; }
+
+	[Parameter]
+	public double Height { get; set; }
+
+	[Parameter]
+	public double Width { get; set; }
+
+	[Parameter]
+	public double Top { get; set; }
+
+	[Parameter]
+	public double Right { get; set; }
+
+	[Parameter]
+	public double Left { get; set; }
+
+	public Classes.Vertex passedVertex { get; set; }
+
+
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		isFirstRender = true;
+		passedVertex = new Classes.Vertex()
+		{
+			Name = "A",
+			Adjacents = new List<Classes.Vertex>(),
+			Entries = new List<Classes.Vertex>(),
+		};
+
+		graph.AddVertex(passedVertex);
+
+	}
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await base.OnParametersSetAsync();
+
+		if (isFirstRender)
+		{
+			GetRandom(Width, Height);
+			
+		}
+	}
+
+
+	// These two method divided the area  to six part, so the points ....
+	public void GetRandom(double maxW, double maxH)
+	{	
+		Random number = new Random();
+
+		var limitedWidth = maxW - 250; 
+		var limitedHeight = maxH - 250;
+
+		double distance = 0;
+
+		int counterX = 1;
+		int counterY = 0;
+
+		foreach (var list in VertexesGroups)
+		{
+			var tempList = list.OrderByDescending(l => l.Entries.Count).ToList();
+			var center = tempList.First();
+
+			foreach (var vertex in tempList)
+			{
+				if (vertex == center)
+				{
+					vertex.X = (number.NextDouble() * (((limitedWidth / 3) + counterX * (limitedWidth / 3)) - (counterX * (limitedWidth / 3))) + (counterX * (limitedWidth / 3))) + 125;
+					vertex.Y = (number.NextDouble() * (((limitedHeight / 3) + counterY * (limitedHeight / 3)) - (counterY * (limitedHeight / 3))) + (counterY * (limitedHeight / 3))) + 125;
+
+
+					if (counterX == 0 && counterY == 2)
+					{
+						counterX = 0;
+						counterY = 0;
+
+					}
+					else if (counterX == 2 && counterY == 2)
+					{
+						counterX = 2;
+						counterY = 0;
+
+					}
+					else if (counterX == 1 && counterY == 2)
+					{
+						counterX = 1;
+						counterY = 0;
+
+					}
+					else
+					{
+						if (counterY == 2)
+						{
+							counterY = 0;
+						}
+						else
+						{
+							counterY++;
+						}
+
+						if (counterX == 2)
+						{
+							counterX = 0;
+						}
+						else
+						{
+							counterX++;
+						}
+					}
+				}
+				else
+				{
+					if (vertex.Entries.Count > 2 && vertex.Entries.Count < 5)
+					{
+						vertex.X = number.NextDouble() * ((center.X + 40) - (center.X - 40)) + (center.X - 40);
+						vertex.Y = number.NextDouble() * ((center.Y + 40) - (center.Y - 40)) + (center.Y - 40);
+						while (distance < 20)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}						
+						while (distance > 40)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+					}
+					else if (vertex.Entries.Count == 2)
+					{
+						vertex.X = number.NextDouble() * ((center.X + 60) - (center.X - 60)) + (center.X - 60);
+						vertex.Y = number.NextDouble() * ((center.Y + 60) - (center.Y - 60)) + (center.Y - 60);
+
+						distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						while (distance < 40)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+						while (distance > 60)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+					}
+					else
+					{
+						vertex.X = number.NextDouble() * ((center.X + 80) - (center.X - 80)) + (center.X - 80);
+						vertex.Y = number.NextDouble() * ((center.Y + 80) - (center.Y - 80)) + (center.Y - 80);
+
+						distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						while (distance < 60)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+						while (distance > 80)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < 15; i++)
+		{
+
+			
+		}
+
+		if(SingleVertexes.Count != 0)
+		{
+			foreach (var item in SingleVertexes)
+			{
+				item.X = number.NextDouble() * ((maxW - 30) - (30)) + (30);
+				item.Y = number.NextDouble() * ((maxH - 30) - (30)) + (30);
+			}
+		}
+	}
+
+
+	public void passingVertex(Classes.Vertex vertex)
+	{
+		passedVertex = vertex;
+		OnVertexChanged.InvokeAsync(vertex);
+	}
+
+}

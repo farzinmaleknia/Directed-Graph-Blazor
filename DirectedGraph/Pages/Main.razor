@@ -1,0 +1,17 @@
+﻿@page "/Main"
+
+@inject NavigationManager Navigation
+
+<div class="mt-5 d-flex justify-content-center">
+    <button class="btn btn-dark btn-lg" @onclick="NavigateTo">
+        Click here to open Directed Graph
+    </button>
+</div>
+
+
+@code {
+    public void NavigateTo()
+    {
+        Navigation.NavigateTo("/Main/DirectedGraph");
+    }
+}
