@@ -1,5 +1,7 @@
 ﻿@inject IJSRuntime JsRuntime
 
+@using System.Diagnostics;
+
 @if (Width > 0 && Height > 0)
 {
 	@foreach (var item in graph.GetVertexSet())
@@ -7,7 +9,7 @@
 		<img src="@($"./images/circle-{item.Color}.png")" alt="" width="@(item.IconSize)"
 			@onclick="() => passingVertex(item)"
 			style="@($"color: black; z-index: 20; font-size: {item.IconSize}px; color: {item.Color}; position: absolute; left: {(item.X)}px; top: {item.Y}px;")"
-			title="@($"Name : {item.Name} \nTotal Entries : {graph.InDegree(item)} \nTotal Departures : {graph.OutDegree(item)}")" 
+			title="@($"Name : {item.Name} \nTotal Entries : {item.Entries.Count} \nTotal Departures : {item.Adjacents.Count - item.Entries.Count}")" 
 			data-bs-toggle="modal"
 			data-bs-target="#optionModel" />
 
@@ -20,16 +22,10 @@
 
 @code {
 	[Parameter]
-	public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+	public Classes.DirectedGraph graph { get; set; }
 
 	[Parameter]
 	public EventCallback<Classes.Vertex> OnVertexChanged { get; set; }
-
-	[Parameter]
-	public List<List<Classes.Vertex>> VertexesGroups { get; set; }
-
-	[Parameter]
-	public List<Classes.Vertex> SingleVertexes { get; set; }
 
 	[Parameter]
 	public bool isFirstRender { get; set; }
@@ -62,8 +58,8 @@
 		passedVertex = new Classes.Vertex()
 		{
 			Name = "A",
-			Adjacents = new List<Classes.Vertex>(),
-			Entries = new List<Classes.Vertex>(),
+			Adjacents = new List<string>(),
+			Entries = new List<string>(),
 		};
 
 		graph.AddVertex(passedVertex);
@@ -78,7 +74,7 @@
 		if (isFirstRender)
 		{
 			GetRandom(Width, Height);
-			
+
 		}
 	}
 
@@ -86,17 +82,23 @@
 	// These two method divided the area  to six part, so the points ....
 	public void GetRandom(double maxW, double maxH)
 	{	
+		var timer = new Stopwatch();
+		timer.Start();
 		Random number = new Random();
 
 		var limitedWidth = maxW - 250; 
 		var limitedHeight = maxH - 250;
 
-		double distance = 0;
+		var columns = Math.Floor(limitedWidth / 200);
+		var rows = Math.Floor(limitedHeight / 200);
 
-		int counterX = 1;
+		double distance = 0;
+		int counterX = 0;
 		int counterY = 0;
 
-		foreach (var list in VertexesGroups)
+		var headPositions = new List<List<double>>();
+
+		foreach (var list in graph.GetVertexGroups())
 		{
 			var tempList = list.OrderByDescending(l => l.Entries.Count).ToList();
 			var center = tempList.First();
@@ -105,47 +107,54 @@
 			{
 				if (vertex == center)
 				{
-					vertex.X = (number.NextDouble() * (((limitedWidth / 3) + counterX * (limitedWidth / 3)) - (counterX * (limitedWidth / 3))) + (counterX * (limitedWidth / 3))) + 125;
-					vertex.Y = (number.NextDouble() * (((limitedHeight / 3) + counterY * (limitedHeight / 3)) - (counterY * (limitedHeight / 3))) + (counterY * (limitedHeight / 3))) + 125;
+					//vertex.X = (number.NextDouble() * (((limitedWidth / columns) + counterX * (limitedWidth / columns)) - (counterX * (limitedWidth / columns))) + (counterX * (limitedWidth / columns))) + 125;
+					//vertex.Y = (number.NextDouble() * (((limitedHeight / rows) + counterY * (limitedHeight / rows)) - (counterY * (limitedHeight / rows))) + (counterY * (limitedHeight / rows))) + 125;
+					
+					vertex.X = (number.NextDouble() * ((limitedWidth - 0) + 0) + 125);
+					vertex.Y = (number.NextDouble() * ((limitedHeight - 0) + 0) + 125);
+
+					for (int i = 0; i < 5; i++)
+					{
+						foreach (var item in headPositions)
+						{
+							distance = Math.Sqrt(((item[0] - vertex.X) * (item[0] - vertex.X)) + ((item[1] - vertex.Y) * (item[1] - vertex.Y)));
+							while (distance < 150)
+							{
+								vertex.X = (number.NextDouble() * ((limitedWidth - 0) + 0) + 125);
+								vertex.Y = (number.NextDouble() * ((limitedHeight - 0) + 0) + 125);
+								distance = Math.Sqrt(((item[0] - vertex.X) * (item[0] - vertex.X)) + ((item[1] - vertex.Y) * (item[1] - vertex.Y)));
+								Console.WriteLine("1");
+							}
+						}
+					}
 
 
-					if (counterX == 0 && counterY == 2)
+					headPositions.Add(new List<double>() { vertex.X, vertex.Y });
+
+					if (counterX == columns - 1 && counterY == rows - 1)
 					{
 						counterX = 0;
 						counterY = 0;
-
-					}
-					else if (counterX == 2 && counterY == 2)
-					{
-						counterX = 2;
-						counterY = 0;
-
-					}
-					else if (counterX == 1 && counterY == 2)
-					{
-						counterX = 1;
-						counterY = 0;
-
 					}
 					else
 					{
-						if (counterY == 2)
-						{
-							counterY = 0;
-						}
-						else
-						{
-							counterY++;
-						}
-
-						if (counterX == 2)
+						if (counterX == columns - 1)
 						{
 							counterX = 0;
+							counterY++;
+
+							if(counterY == rows)
+							{
+								counterY = 0;
+							}
+
 						}
 						else
 						{
 							counterX++;
 						}
+
+
 					}
 				}
 				else
@@ -209,20 +218,17 @@
 			}
 		}
 
-		for (int i = 0; i < 15; i++)
+		if(graph.GetSingleVertexSet().Count > 0)
 		{
-
-			
-		}
-
-		if(SingleVertexes.Count != 0)
-		{
-			foreach (var item in SingleVertexes)
+			foreach (var item in graph.GetSingleVertexSet())
 			{
 				item.X = number.NextDouble() * ((maxW - 30) - (30)) + (30);
 				item.Y = number.NextDouble() * ((maxH - 30) - (30)) + (30);
 			}
 		}
+
+		timer.Stop();
+		Console.WriteLine(timer.Elapsed.TotalSeconds);
 	}
 
 

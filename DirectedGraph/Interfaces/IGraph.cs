@@ -2,27 +2,26 @@
 
 namespace DirectedGraph.Interfaces
 {
-    public interface IGraph <T, K>
+    public interface IGraph
     {
-        bool AddVertex(T vertex);
-        void AddVertex(IEnumerable<T> vertexSet);
-        bool DeleteVertex(T vertex);
-        void DeleteVertex(IEnumerable<T> vertexSet);
+        bool AddVertex(Vertex vertex);
+        void AddVertex(IEnumerable<Vertex> vertexSet);
+        bool DeleteVertex(Vertex vertex);
+        void DeleteVertex(IEnumerable<Vertex> vertexSet);
 
-        bool AddEdge(T v1, T v2, K weigth);
-        K GetWeigth(T v1, T v2);
-        bool DeleteEdge(T v1, T v2);
-        bool AreAdjacent(T v1, T v2);
+        bool AddEdge(Vertex v1, Vertex v2, string weigth);
+        bool DeleteEdge(Vertex v1, Vertex v2);
+        bool AreAdjacent(Vertex v1, Vertex v2);
 
-        int Degree(T vertex);
-        int OutDegree(T vertex);
-        int InDegree(T vertex);
+        int Degree(Vertex vertex);
+        int OutDegree(Vertex vertex);
+        int InDegree(Vertex vertex);
         int VerticesNumber();
         int EdgesNumber();
 
-        void AdjacentVertices(List<T> list, T vertex);
-        IEnumerable<T> GetVertexSet();
-        IEnumerable<PairValueImplementation<T>> GetEdgeSet();
+        void AdjacentVertices(Vertex vertex);
+        IEnumerable<Vertex> GetVertexSet();
+        IEnumerable<PairValueImplementation<Vertex>> GetEdgeSet();
 
     }
 

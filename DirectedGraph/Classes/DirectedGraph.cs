@@ -3,57 +3,47 @@ using System.Diagnostics.Metrics;
 
 namespace DirectedGraph.Classes
 {
-    public class DirectedGraph<T, K> : AbstractGraph<T, K>
+    public class DirectedGraph : AbstractGraph
     {
-        public override bool AddEdge(T v1, T v2, K weigth)
+        public override bool AddEdge(Vertex v1, Vertex v2, string weigth)
         {
             if (v1 == null || v2 == null || weigth == null) throw new ArgumentNullException();
 
             if (!VertexSet.Contains(v1) || !VertexSet.Contains(v2)) return false;
-            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
+            PairValueImplementation<Vertex> pair = new PairValueImplementation<Vertex>(v1, v2);
             if (EdgeSet.Contains(pair)) return false;
 
             EdgeSet.Add(pair);
-            Weigths[pair] = weigth;
             return true;
         }
 
-        public override K GetWeigth(T v1, T v2)
+
+
+        public override bool DeleteEdge(Vertex v1, Vertex v2)
         {
             if (v1 == null || v2 == null) throw new ArgumentNullException();
 
-            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
-            if (!Weigths.ContainsKey(pair)) throw new ArgumentException();
-
-            return Weigths[pair];
-        }
-
-        public override bool DeleteEdge(T v1, T v2)
-        {
-            if (v1 == null || v2 == null) throw new ArgumentNullException();
-
-            PairValueImplementation<T> pair = new PairValueImplementation<T>(v1, v2);
+            PairValueImplementation<Vertex> pair = new PairValueImplementation<Vertex>(v1, v2);
             if (EdgeSet.Contains(pair))
             {
                 EdgeSet.Remove(pair);
-                Weigths.Remove(pair);
                 return true;
             };
 
             return false;
         }
 
-        public override bool AreAdjacent(T v1, T v2)
+        public override bool AreAdjacent(Vertex v1, Vertex v2)
         {
             if (v1 == null || v2 == null) throw new ArgumentNullException();
 
             if (!VertexSet.Contains(v1) || !VertexSet.Contains(v2)) throw new ArgumentException();
 
-            return EdgeSet.Contains(new PairValueImplementation<T>(v1, v2));
+            return EdgeSet.Contains(new PairValueImplementation<Vertex>(v1, v2));
 
         }
 
-        public override int Degree(T vertex)
+        public override int Degree(Vertex vertex)
         {
             if (vertex == null) throw new ArgumentNullException();
 
@@ -63,7 +53,7 @@ namespace DirectedGraph.Classes
 
         }
 
-        public override int OutDegree(T vertex)
+        public override int OutDegree(Vertex vertex)
         {
             if (vertex == null) throw new ArgumentNullException();
 
@@ -76,7 +66,7 @@ namespace DirectedGraph.Classes
             return counter;
         }
 
-        public override int InDegree(T vertex)
+        public override int InDegree(Vertex vertex)
         {
             if (vertex == null) throw new ArgumentNullException();
 
@@ -89,30 +79,30 @@ namespace DirectedGraph.Classes
             return counter;
         }
 
-        public override void AdjacentVertices(List<T> list, T vertex)
+        public override void AdjacentVertices(Vertex vertex)
         {
-            foreach (PairValueImplementation<T> p in EdgeSet)
+            foreach (PairValueImplementation<Vertex> p in EdgeSet)
             {
                 if (p.End.Equals(vertex))
                 {
-                    list.Add(p.Start);
+                    vertex.Adjacents.Add(p.Start.Name);
 
                 }
                 if (p.Start.Equals(vertex))
                 {
-                    list.Add(p.End);
+                    vertex.Adjacents.Add(p.End.Name);
 
                 }
             }
         }
 
-        public void EntriesVertices(List<T> list, T vertex)
+        public void EntriesVertices(Vertex vertex)
         {
-            foreach (PairValueImplementation<T> p in EdgeSet)
+            foreach (PairValueImplementation<Vertex> p in EdgeSet)
             {
                 if (p.End.Equals(vertex))
                 {
-                    list.Add(p.Start);
+                    vertex.Entries.Add(p.Start.Name);
 
                 }
             }

@@ -2,13 +2,14 @@
 
 namespace DirectedGraph.Classes
 {
-    public abstract class AbstractGraph<T, K> : IGraph<T, K>
+    public abstract class AbstractGraph : IGraph
     {
-        protected readonly List<T> VertexSet = new List<T>();
-        protected readonly List<PairValueImplementation<T>> EdgeSet = new List<PairValueImplementation<T>>();
-        protected readonly Dictionary<PairValueImplementation<T>, K> Weigths = new Dictionary<PairValueImplementation<T>, K>();
+        public readonly List<Vertex> VertexSet = new List<Vertex>();
+        public readonly List<Vertex> SingleVertexSet = new List<Vertex>();
+        public readonly List<List<Vertex>> VertexesGroups = new List<List<Vertex>>();
+        public readonly List<PairValueImplementation<Vertex>> EdgeSet = new List<PairValueImplementation<Vertex>>();
 
-        public bool AddVertex(T vertex)
+        public bool AddVertex(Vertex vertex)
         {
             if (vertex == null) throw new ArgumentNullException();
             if(VertexSet.Contains(vertex)) return false;
@@ -17,7 +18,17 @@ namespace DirectedGraph.Classes
             return true;
         }
 
-        public void AddVertex(IEnumerable<T> vertexSet)
+        public bool AddVertexGroup(List<Vertex> vertexGroup)
+        {
+            if (vertexGroup == null) throw new ArgumentNullException();
+            if(VertexesGroups.Contains(vertexGroup)) return false;
+
+            if(vertexGroup.Count > 0)
+                VertexesGroups.Add(vertexGroup);
+                return true;
+        }
+
+        public void AddVertex(IEnumerable<Vertex> vertexSet)
         {
             if (vertexSet == null) throw new ArgumentNullException();
 
@@ -28,7 +39,29 @@ namespace DirectedGraph.Classes
 			}
         }
 
-        public bool DeleteVertex(T vertex)
+        public void AddSingleVertex(List<Vertex> vertexSet)
+        {
+            if (vertexSet == null) throw new ArgumentNullException();
+
+            foreach (var v in vertexSet)
+            {
+                if (v != null && !SingleVertexSet.Contains(v))
+                    SingleVertexSet.Add(v);
+            }
+        }
+
+        public void AddVertexGroup(List<List<Vertex>> vertexGroups)
+        {
+            if (vertexGroups == null) throw new ArgumentNullException();
+
+            foreach(var g in vertexGroups)
+            {
+				if (g != null && !VertexesGroups.Contains(g) && g.Count > 0)
+                    VertexesGroups.Add(g);
+			}
+        }
+
+        public bool DeleteVertex(Vertex vertex)
         {
             if (vertex == null) throw new ArgumentNullException();
             if (!VertexSet.Contains(vertex)) return false;
@@ -38,7 +71,7 @@ namespace DirectedGraph.Classes
 
         }
 
-        public void DeleteVertex(IEnumerable<T> vertexSet)
+        public void DeleteVertex(IEnumerable<Vertex> vertexSet)
         {
             if (vertexSet == null) throw new ArgumentNullException();
             using (var it = VertexSet.GetEnumerator())
@@ -50,19 +83,17 @@ namespace DirectedGraph.Classes
                 }
             }
         }
-        public abstract bool AddEdge(T v1, T v2, K weigth);
+        public abstract bool AddEdge(Vertex v1, Vertex v2, string weigth);
 
-        public abstract K GetWeigth(T v1, T v2);
+        public abstract bool DeleteEdge(Vertex v1, Vertex v2);
 
-        public abstract bool DeleteEdge(T v1, T v2);
+        public abstract bool AreAdjacent(Vertex v1, Vertex v2);
 
-        public abstract bool AreAdjacent(T v1, T v2);
+        public abstract int Degree(Vertex vertex);
 
-        public abstract int Degree(T vertex);
+        public abstract int OutDegree(Vertex vertex);
 
-        public abstract int OutDegree(T vertex);
-
-        public abstract int InDegree(T vertex);
+        public abstract int InDegree(Vertex vertex);
 
         public int VerticesNumber()
         {
@@ -74,14 +105,24 @@ namespace DirectedGraph.Classes
             return EdgeSet.Count;
         }
 
-        public abstract void AdjacentVertices(List<T> list, T vertex);
+        public abstract void AdjacentVertices(Vertex vertex);
 
-        public IEnumerable<T> GetVertexSet()
+        public IEnumerable<Vertex> GetVertexSet()
         {
             return VertexSet;
         }
 
-        public IEnumerable<PairValueImplementation<T>> GetEdgeSet()
+        public List<List<Vertex>> GetVertexGroups()
+        {
+            return VertexesGroups;
+        }
+
+        public List<Vertex> GetSingleVertexSet()
+        {
+            return SingleVertexSet;
+        }
+
+        public IEnumerable<PairValueImplementation<Vertex>> GetEdgeSet()
         {
             return EdgeSet;
         }

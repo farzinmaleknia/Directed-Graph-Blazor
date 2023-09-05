@@ -1,17 +1,449 @@
-﻿@page "/Main"
+﻿@page "/"
 
+@inject IJSRuntime JsRuntime
 @inject NavigationManager Navigation
+@inject HttpClient http
+<div class="my-5">
+	<div class="mb-2 d-flex justify-content-center">
+		<button class="btn btn-success" @onclick="LaunchEditForm">
+			Generate a graph
+		</button>
+	</div>
+		
 
-<div class="mt-5 d-flex justify-content-center">
-    <button class="btn btn-dark btn-lg" @onclick="NavigateTo">
-        Click here to open Directed Graph
-    </button>
+	@if (launchForm)
+	{
+		<div class="mb-2 d-flex justify-content-center" style="background-color: lightgray; padding: 20px; margin: 10px;">
+			<EditForm Model="Model" OnValidSubmit="InitialGraph">
+				<div class="mb-3">
+					<label for="Accounts" class="form-label">Accounts Count:</label>
+					<InputNumber id="Accounts" class="form-control" @bind-Value="Model.Accounts" />
+				</div>
+
+				<div class="mb-3">
+					<label for="stores" class="form-label">Stores Count:</label>
+					<InputNumber id="stores" class="form-control" @bind-Value="Model.Stores" />
+				</div>
+
+				<div class="mb-3">
+					<label for="Transitions" class="form-label">Transitions Count:</label>
+					<InputNumber id="Transitions" class="form-control" @bind-Value="Model.Transitions" />
+				</div>
+
+				<div class="mb-3 text-left">
+					<button type="submit" class="btn btn-primary btn-sm" title="Click to Generate Graph">
+						Generate
+					</button>
+				</div>
+
+			</EditForm>
+		</div>
+	}
+
+	<div class="mb-2 d-flex justify-content-center">
+		<button class="btn btn-primary" @onclick="LoadGraphMethod">
+			Load a graph
+		</button>
+	</div>
+
 </div>
+
+@if (IsGraphReady)
+{
+    <div class="d-flex justify-content-center align-content-center fade-in">
+		<button class="btn btn-dark btn-lg" @onclick="launchGraphMethod">
+			Show Graph
+		</button>
+	</div>
+
+}
+
+@if (launchGraph)
+{
+	<DirecedGraph graph="@graph" 
+		OnCloseGraph="@CloseGraph"/>
+}
+
+
 
 
 @code {
-    public void NavigateTo()
-    {
-        Navigation.NavigateTo("/Main/DirectedGraph");
-    }
+
+	public Classes.DirectedGraph graph { get; set; }
+
+	public Classes.GraphDetails Model { get; set; }
+
+	private bool IsGraphReady { get; set; }
+	private bool launchGraph { get; set; }
+	private bool launchForm { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		graph = new Classes.DirectedGraph();
+		Model = new Classes.GraphDetails();
+
+		IsGraphReady = false;
+		launchGraph = false;
+		launchForm = false;
+	}
+
+	public void LaunchEditForm()
+	{
+		launchForm = !launchForm;
+		IsGraphReady = false;
+	}
+
+	public async Task InitialGraph()
+	{
+
+		Random rnd = new Random();
+
+		Classes.DirectedGraph tempGraph = new Classes.DirectedGraph(); 
+		List<int> stores = new List<int>();
+		List<Classes.Vertex> allVertexes = new List<Classes.Vertex>();
+		List<List<Classes.Vertex>> vertexesGroups = new List<List<Classes.Vertex>>();
+
+		Console.WriteLine("creating Stores ...");
+		for (int j = 0; j < Model.Stores; j++)
+		{
+			int num = rnd.Next(0, Model.Accounts);
+			if (!stores.Contains(num))
+			{
+				stores.Add(num);
+			}
+		}
+
+		Console.WriteLine("creating Accounts ...");
+		for (int i = 0; i < Model.Accounts; i++)
+		{
+			tempGraph.AddVertex(new Classes.Vertex()
+			{
+				Name = i.ToString(),
+				//IsStore = stores.Contains(i) ? true : false,
+			});
+		}
+
+		Console.WriteLine("creating Transitions ...");
+		for (int i = 0; i < Model.Transitions; i++)
+		{
+			int num1 = rnd.Next(0, Model.Accounts);
+			int num2 = 0;
+			int possibilityNum = rnd.Next(0, 100);
+
+			if (possibilityNum < 70)
+			{
+				num2 = stores[(rnd.Next(0, stores.Count))];
+			}
+			else
+			{
+				num2 = rnd.Next(0, Model.Accounts);
+			}
+
+			while (num1 == num2)
+			{
+				if (possibilityNum < 70)
+				{
+					num2 = stores[(rnd.Next(0, stores.Count))];
+				}
+				else
+				{
+					num2 = rnd.Next(0, Model.Accounts);
+				}
+			}
+
+			var v1 = tempGraph.GetVertexSet().FirstOrDefault(v => v.Name == (num1).ToString());
+			var v2 = tempGraph.GetVertexSet().FirstOrDefault(v => v.Name == (num2).ToString());
+
+			if (v1 != null && v2 != null)
+			{
+				tempGraph.AddEdge(v1, v2, "Label #" + (i + 1));
+
+			}
+		}
+
+		Console.WriteLine("determining Accounts rate ...");
+
+		double range = ((Model.Transitions + Model.Accounts) / 2) * 0.02;
+
+		int green = 0;
+		int yellow = 0;
+		int orange = 0;
+		int red = 0;
+
+		foreach (var item in tempGraph.GetVertexSet())
+		{
+			tempGraph.AdjacentVertices(item);
+			tempGraph.EntriesVertices(item);
+
+
+			var count = item.Entries.Count;
+
+			if(count < (range / 4))
+			{
+				item.Color = "green";
+				item.IconSize = 4;
+				green++;
+			}
+			else if (count > (range / 4) && count < (range / 4) * 2)
+			{
+				item.Color = "yellow";
+				item.IconSize = 5;
+				yellow++;
+			}
+			else if (count > (range / 4) * 2 && count < (range / 4) * 3)
+			{
+				item.Color = "orange";
+				item.IconSize = 6;
+				orange++;
+			}
+			else
+			{
+				item.Color = "red";
+				item.IconSize = 7;
+				red++;
+			}
+		}
+
+		Console.WriteLine("grouping Accounts ...");
+		foreach (var item in tempGraph.GetVertexSet())
+		{
+			allVertexes.Add(item);
+		}
+
+		foreach (var item in allVertexes)
+		{
+			if (item.Entries.Count > ((range / 4) * 2))
+			{
+				vertexesGroups.Add(new List<Classes.Vertex>() { item });
+				item.IsInGroup = true;
+
+				foreach (var i in item.Adjacents)
+				{
+					var j = allVertexes.FirstOrDefault(v => v.Name == i);
+					if (!j.IsInGroup && j.Entries.Count < ((range / 4) * 2))
+					{
+						vertexesGroups.FirstOrDefault(l => l.Contains(item)).Add(j);
+						j.IsInGroup = true;
+					}
+
+				}
+			}
+		}
+
+		foreach (var item in allVertexes)
+		{
+			if (item.Entries.Count > (range / 4) && item.Entries.Count < (range / 4) * 2 && !item.IsInGroup && item.IsStore)
+			{
+				vertexesGroups.Add(new List<Classes.Vertex>() { item });
+				item.IsInGroup = true;
+				Console.WriteLine("not red header added");
+
+				foreach (var i in item.Adjacents)
+				{
+					var j = allVertexes.FirstOrDefault(v => v.Name == i);
+					if (!j.IsInGroup)
+					{
+						vertexesGroups.FirstOrDefault(l => l.Contains(item)).Add(j);
+						j.IsInGroup = true;
+					}
+
+				}
+			}
+		}
+
+
+
+		vertexesGroups = vertexesGroups.FindAll(g => g.Count > 0);
+
+		int isNotin = 0;
+		int isNotin2 = 0;
+		int isNotin3 = 0;
+
+		for (int i = 0; i < 1; i++)
+		{
+			foreach (var item in allVertexes)
+			{
+				var a = item.Name;
+				var b = item.Adjacents;
+
+				if (item.Entries.Count < ((range / 3) * 2) && !item.IsStore)
+				{
+					if (!item.IsInGroup)
+					{
+						isNotin++;
+					}
+					var itemList = vertexesGroups.FirstOrDefault(l => l.Contains(item));
+					var AdjacentsList = new List<Classes.Vertex>();
+					foreach (var v in item.Adjacents)
+					{
+						var tempV = allVertexes.FirstOrDefault(vertex => vertex.Name == v);
+						AdjacentsList.Add(tempV);
+					}
+
+					if (itemList == null)
+					{
+						itemList = new List<Classes.Vertex>();
+					}
+
+					int itemListSimilarity = AdjacentsList.Except(itemList).Count();
+
+					foreach (var list in vertexesGroups)
+					{
+						var nnnnnnn = item.Name;
+						var newListSimilarity = AdjacentsList.Except(list).Count();
+						if (!item.IsInGroup && list != itemList)
+						{
+							if (itemListSimilarity > newListSimilarity)
+							{
+								itemList.Remove(item);
+								list.Add(item);
+								itemList = list;
+								itemListSimilarity = AdjacentsList.Except(list).Count();
+								item.IsInGroup = true;
+							}
+							else if (itemListSimilarity == newListSimilarity && list.Count < itemList.Count)
+							{
+								itemList.Remove(item);
+								list.Add(item);
+								itemList = list;
+								itemListSimilarity = AdjacentsList.Except(list).Count();
+								item.IsInGroup = true;
+							}
+						}
+					}
+
+					if (!item.IsInGroup )
+					{
+						isNotin2++;
+
+						if(item.Adjacents.Count == 0)
+						{
+							isNotin3++;
+
+						}
+					}
+				}
+
+			}
+		}
+
+		Console.WriteLine($"isNotin - {isNotin}");
+		Console.WriteLine($"isNotin2 - {isNotin2}");
+		Console.WriteLine($"isNotin3 - {isNotin3}");
+		int isNotInGroup = 0;
+
+		Console.WriteLine("finishing ...");
+		foreach (var list in vertexesGroups)
+		{
+			foreach (var v in list)
+			{
+				allVertexes.Remove(v);
+			}
+		}
+
+
+		var maxGroupMember = 0;
+
+		foreach (var list in vertexesGroups)
+		{
+			if( maxGroupMember < list.Count)
+			{
+				maxGroupMember = list.Count;
+			}
+		}
+
+		var groupsNeededCount = allVertexes.Count / maxGroupMember + 1;
+
+		for (int i = 0; i < groupsNeededCount; i++)
+		{
+			var tempItem = allVertexes.First();
+			vertexesGroups.Add(new List<Classes.Vertex>() { tempItem });
+			tempItem.IsInGroup = true;
+			allVertexes.Remove(tempItem);
+			var tempList = vertexesGroups.FirstOrDefault(l => l.Contains(tempItem));
+			while (tempList.Count <= maxGroupMember && allVertexes.Count > 0)
+			{
+				tempItem = allVertexes.First();
+				tempList.Add(tempItem);
+				tempItem.IsInGroup = true;
+				allVertexes.Remove(tempItem);
+			}
+
+		}
+
+		//int groupIndex = 0;
+		//foreach (var item in allVertexes)
+		//{
+		//	if (!item.IsInGroup)
+		//	{
+		//		vertexesGroups[groupIndex].Add(item);
+		//		item.IsInGroup = true;
+		//		if (groupIndex == vertexesGroups.Count - 1)
+		//		{
+		//			groupIndex = 0;
+		//		}
+		//		else
+		//		{
+		//			groupIndex++;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		Console.WriteLine("falshe - falshe - falshe - falshe - falshe - falshe - falshe - falshe - falshe");
+		//	}
+		//}
+
+		foreach (var item in allVertexes)
+		{
+			if(!item.IsInGroup)
+			{
+				isNotInGroup++;
+			}
+		}
+
+		Console.WriteLine($"vertexesGroups.Count - {vertexesGroups.Count}");
+		Console.WriteLine($"isNotInGroup - {isNotInGroup}");
+
+
+
+		tempGraph.AddVertexGroup(vertexesGroups);
+		tempGraph.AddSingleVertex(allVertexes);
+
+		graph = tempGraph;
+		IsGraphReady = true;
+		launchForm = false;
+
+		Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Finished");
+	}
+
+	public async Task LoadGraphMethod()
+	{
+		IsGraphReady = false;
+		graph = new Classes.DirectedGraph();
+
+		var responce = await http.GetStringAsync("./content/json/graph.json");
+
+		graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+
+
+		if(graph.GetVertexSet().Count() > 0)
+		{
+			IsGraphReady = true;
+			launchForm = false;
+		}
+	}
+
+	public void launchGraphMethod()
+	{
+		launchGraph = true;
+	}
+
+	public async Task CloseGraph()
+	{
+		launchGraph = false;
+		Navigation.NavigateTo("/", true);
+	}
 }

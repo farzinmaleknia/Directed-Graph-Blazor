@@ -16,8 +16,10 @@
 
 		public bool IsInGroup;
 
-		public List<Vertex> Adjacents = new List<Vertex>();
+		public bool IsStore;
 
-		public List<Vertex> Entries = new List<Vertex>();
+		public List<string> Adjacents = new List<string>();
+
+		public List<string> Entries = new List<string>();
 	}
 }

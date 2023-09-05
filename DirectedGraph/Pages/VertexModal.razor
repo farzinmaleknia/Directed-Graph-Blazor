@@ -12,13 +12,13 @@
                     <div>
                         <ul>
                             <li>
-                                Total Connection : @(graph.InDegree(vertex) + graph.OutDegree(vertex)),
+                                Total Connection : @(vertex.Entries.Count + vertex.Entries.Count),
                             </li>
                             <li>
-                                Total Entries : @(graph.InDegree(vertex)),
+                                Total Entries : @(vertex.Entries.Count),
                             </li>
                             <li>
-                                Total Departures : @(graph.OutDegree(vertex)),
+                                Total Departures : @(vertex.Entries.Count),
                             </li>
                             <li>
                                 @*All the connection : @(graph.AdjacentVertices(vertex)),*@
@@ -33,7 +33,7 @@
 
 @code {
     [Parameter]
-    public Classes.DirectedGraph<Classes.Vertex, string> graph { get; set; }
+    public Classes.DirectedGraph graph { get; set; }
 
     [Parameter]
     public Classes.Vertex vertex { get; set; }
