@@ -5,13 +5,13 @@
 @inject HttpClient http
 <div class="my-5">
 	<div class="mb-2 d-flex justify-content-center">
-		<button class="btn btn-success" @onclick="LaunchEditForm">
+		<button class="btn btn-success" @onclick="launchNewFormMethod">
 			Generate a graph
 		</button>
 	</div>
 		
 
-	@if (launchForm)
+	@if (launchNewForm)
 	{
 		<div class="mb-2 d-flex justify-content-center" style="background-color: lightgray; padding: 20px; margin: 10px;">
 			<EditForm Model="Model" OnValidSubmit="InitialGraph">
@@ -31,7 +31,7 @@
 				</div>
 
 				<div class="mb-3 text-left">
-					<button type="submit" class="btn btn-primary btn-sm" title="Click to Generate Graph">
+					<button type="submit" class="btn btn-success btn-sm" title="Click to Generate Graph">
 						Generate
 					</button>
 				</div>
@@ -41,10 +41,63 @@
 	}
 
 	<div class="mb-2 d-flex justify-content-center">
-		<button class="btn btn-primary" @onclick="LoadGraphMethod">
+		<button class="btn btn-primary" @onclick="launchLoadGraphMethod">
 			Load a graph
 		</button>
 	</div>
+
+	@if (launchLoadGraph)
+	{
+		<div class="mb-2 d-flex justify-content-center" style="background-color: lightgray; padding: 20px; margin: 10px;">
+			<div class="row" style="width: 650px">
+				<div class="col-12 d-flex justify-content-between mt-3">
+					<span class="btn-outline-dark mt-2 mx-5">
+						Graph with 250 accounts, 15 stores and 375 transitions
+					</span>
+					<button class="btn btn-outline-info" @onclick="() => LoadGraphMethod(1)">
+						Load
+					</button>
+				</div>
+				<div class="col-12 d-flex justify-content-between mt-3">
+					<span class="btn-outline-dark mt-2 mx-5">
+						Graph with 500 accounts, 30 stores and 750 transitions
+					</span>
+					<button class="btn btn-outline-primary" @onclick="() => LoadGraphMethod(2)">
+						Load
+					</button>
+				</div>
+				<div class="col-12 d-flex justify-content-between mt-3">
+					<span class="btn-outline-dark mt-2 mx-5">
+						Graph with 1000 accounts, 90 stores and 1500 transitions
+					</span>
+					<button class="btn btn-outline-success" @onclick="() => LoadGraphMethod(3)">
+						Load
+					</button>
+				</div>
+				<div class="col-12 d-flex justify-content-between mt-3">
+					<span class="btn-outline-dark mt-2 mx-5">
+						Graph with 4000 accounts, 500 stores and 9000 transitions
+					</span>
+					<button class="btn btn-outline-warning" @onclick="() => LoadGraphMethod(4)">
+						Load
+					</button>
+				</div>
+				@if (open)
+				{
+					<div class="col-12 d-flex justify-content-between mt-3">
+						<span class="btn-outline-dark mt-2 mx-5">
+							Test (Secret Key)
+						</span>
+						<button class="btn btn-outline-dark" @onclick="() => LoadGraphMethod(1000)">
+							Load
+						</button>
+					</div>
+				}
+			</div>
+			
+		</div>
+		
+	}
 
 </div>
 
@@ -60,8 +113,14 @@
 
 @if (launchGraph)
 {
-	<DirecedGraph graph="@graph" 
-		OnCloseGraph="@CloseGraph"/>
+	<DirecedGraph graph="@(graph)" 
+		OnCloseGraph="@(CloseGraph)"
+		OnReposition="@(ToReposition)"
+		HeightMain="@(HeightMain)"
+		WidthMain="@(WidthMain)"
+		Height="@(GraphHeight)"
+		Width="@(GraphWidth)"
+		Scale="@(GraphScale)"/>
 }
 
 
@@ -75,7 +134,22 @@
 
 	private bool IsGraphReady { get; set; }
 	private bool launchGraph { get; set; }
-	private bool launchForm { get; set; }
+	private bool launchNewForm { get; set; }
+	private bool launchLoadGraph { get; set; }
+
+	private double HeightMain { get; set; }
+	private double WidthMain { get; set; }
+
+	private double GraphHeight { get; set; }
+	private double GraphWidth { get; set; }
+	private double GraphScale { get; set; }
+
+	private int secretKeyCounter { get; set; }
+	private bool open { get; set; }
+
+	private bool IsGraphLoaded {  get; set; }
+
+
 
 
 	protected override async Task OnInitializedAsync()
@@ -87,17 +161,43 @@
 
 		IsGraphReady = false;
 		launchGraph = false;
-		launchForm = false;
+		launchNewForm = false;
+		launchLoadGraph = false;
+
+		secretKeyCounter = 0;
+		open = false;
+
+		IsGraphLoaded = false;
 	}
 
-	public void LaunchEditForm()
+	public void launchNewFormMethod()
 	{
-		launchForm = !launchForm;
+		secretKeyCounter = 0;
+		open = false;
+		launchNewForm = !launchNewForm;
+		IsGraphReady = false;
+	}
+
+	public void launchLoadGraphMethod()
+	{
+		if(secretKeyCounter == 3)
+		{
+			open = true;
+			secretKeyCounter = 0;
+		}
+		else
+		{
+			secretKeyCounter++;	
+		}
+
+		launchLoadGraph = !launchLoadGraph;
 		IsGraphReady = false;
 	}
 
 	public async Task InitialGraph()
 	{
+		secretKeyCounter = 0;
+		open = false;
 
 		Random rnd = new Random();
 
@@ -119,16 +219,25 @@
 		Console.WriteLine("creating Accounts ...");
 		for (int i = 0; i < Model.Accounts; i++)
 		{
-			tempGraph.AddVertex(new Classes.Vertex()
+			Console.WriteLine(i);
+			var vertex = new Classes.Vertex()
 			{
 				Name = i.ToString(),
-				//IsStore = stores.Contains(i) ? true : false,
-			});
+				IsStore = stores.Contains(i) ? true : false,
+			};
+			tempGraph.AddVertex(vertex);
+			if (vertex.IsStore) tempGraph.AddStore(vertex);
+		}
+
+		foreach (var item in tempGraph.GetVertexSet())
+		{
+			allVertexes.Add(item);
 		}
 
 		Console.WriteLine("creating Transitions ...");
 		for (int i = 0; i < Model.Transitions; i++)
 		{
+			Console.WriteLine(i);
 			int num1 = rnd.Next(0, Model.Accounts);
 			int num2 = 0;
 			int possibilityNum = rnd.Next(0, 100);
@@ -164,54 +273,69 @@
 			}
 		}
 
+		foreach (var item in tempGraph.GetVertexSet())
+		{
+			tempGraph.AdjacentVertices(item);
+			tempGraph.EntriesVertices(item);
+		}
+
 		Console.WriteLine("determining Accounts rate ...");
 
-		double range = ((Model.Transitions + Model.Accounts) / 2) * 0.02;
+		int storesEntriesCount = 0;
+
+		foreach (var iStore in tempGraph.GetStoresSet())
+		{
+			storesEntriesCount = storesEntriesCount + iStore.Entries.Count;
+		}
+
+		int range = storesEntriesCount / tempGraph.GetStoresSet().Count;
 
 		int green = 0;
 		int yellow = 0;
 		int orange = 0;
 		int red = 0;
 
-		foreach (var item in tempGraph.GetVertexSet())
-		{
-			tempGraph.AdjacentVertices(item);
-			tempGraph.EntriesVertices(item);
+		var list1 = tempGraph.GetVertexSet();
 
+		foreach (var item in list1)
+		{
 
 			var count = item.Entries.Count;
-
-			if(count < (range / 4))
+			Console.WriteLine($"count {count} range {range}");
+			if(count <= (range / 4))
 			{
 				item.Color = "green";
 				item.IconSize = 4;
 				green++;
 			}
-			else if (count > (range / 4) && count < (range / 4) * 2)
+			else if (count >= (range / 4) && count < (range / 4) * 2)
 			{
 				item.Color = "yellow";
 				item.IconSize = 5;
 				yellow++;
 			}
-			else if (count > (range / 4) * 2 && count < (range / 4) * 3)
+			else if (count >= (range / 4) * 2 && count < (range / 4) * 3)
 			{
 				item.Color = "orange";
 				item.IconSize = 6;
 				orange++;
 			}
-			else
+			else if (count >= (range / 4) * 3 && count < range)
+			{
+				item.Color = "orange";
+				item.IconSize = 8;
+				red++;
+			}
+			else if (count >= range)
 			{
 				item.Color = "red";
-				item.IconSize = 7;
+				item.IconSize = 8 + (count - range) * 2;
 				red++;
 			}
 		}
 
 		Console.WriteLine("grouping Accounts ...");
-		foreach (var item in tempGraph.GetVertexSet())
-		{
-			allVertexes.Add(item);
-		}
+
 
 		foreach (var item in allVertexes)
 		{
@@ -258,18 +382,17 @@
 
 		vertexesGroups = vertexesGroups.FindAll(g => g.Count > 0);
 
-		int isNotin = 0;
-		int isNotin2 = 0;
-		int isNotin3 = 0;
 
-		for (int i = 0; i < 1; i++)
+		int isAlone = 0;
+
+
+		for (int i = 0; i < 2; i++)
 		{
+			int isNotin = 0;
+			int isNotin2 = 0;
 			foreach (var item in allVertexes)
 			{
-				var a = item.Name;
-				var b = item.Adjacents;
-
-				if (item.Entries.Count < ((range / 3) * 2) && !item.IsStore)
+				if (item.Entries.Count < ((range / 4) * 2))
 				{
 					if (!item.IsInGroup)
 					{
@@ -292,10 +415,9 @@
 
 					foreach (var list in vertexesGroups)
 					{
-						var nnnnnnn = item.Name;
-						var newListSimilarity = AdjacentsList.Except(list).Count();
-						if (!item.IsInGroup && list != itemList)
+						if (list != itemList)
 						{
+							var newListSimilarity = AdjacentsList.Except(list).Count();
 							if (itemListSimilarity > newListSimilarity)
 							{
 								itemList.Remove(item);
@@ -304,14 +426,14 @@
 								itemListSimilarity = AdjacentsList.Except(list).Count();
 								item.IsInGroup = true;
 							}
-							else if (itemListSimilarity == newListSimilarity && list.Count < itemList.Count)
-							{
-								itemList.Remove(item);
-								list.Add(item);
-								itemList = list;
-								itemListSimilarity = AdjacentsList.Except(list).Count();
-								item.IsInGroup = true;
-							}
+							//else if (itemListSimilarity == newListSimilarity && list.Count < itemList.Count)
+							//{
+							//	itemList.Remove(item);
+							//	list.Add(item);
+							//	itemList = list;
+							//	itemListSimilarity = AdjacentsList.Except(list).Count();
+							//	item.IsInGroup = true;
+							//}
 						}
 					}
 
@@ -321,18 +443,19 @@
 
 						if(item.Adjacents.Count == 0)
 						{
-							isNotin3++;
+							isAlone++;
 
 						}
 					}
 				}
 
 			}
+
+			Console.WriteLine($"isNotin - {isNotin}");
+			Console.WriteLine($"isNotin2 - {isNotin2}");
 		}
 
-		Console.WriteLine($"isNotin - {isNotin}");
-		Console.WriteLine($"isNotin2 - {isNotin2}");
-		Console.WriteLine($"isNotin3 - {isNotin3}");
+		Console.WriteLine($"isAlone - {isAlone}");
 		int isNotInGroup = 0;
 
 		Console.WriteLine("finishing ...");
@@ -345,7 +468,7 @@
 		}
 
 
-		var maxGroupMember = 0;
+		var maxGroupMember = 1;
 
 		foreach (var list in vertexesGroups)
 		{
@@ -353,50 +476,32 @@
 			{
 				maxGroupMember = list.Count;
 			}
+
 		}
 
 		var groupsNeededCount = allVertexes.Count / maxGroupMember + 1;
 
 		for (int i = 0; i < groupsNeededCount; i++)
 		{
-			var tempItem = allVertexes.First();
-			vertexesGroups.Add(new List<Classes.Vertex>() { tempItem });
-			tempItem.IsInGroup = true;
-			allVertexes.Remove(tempItem);
-			var tempList = vertexesGroups.FirstOrDefault(l => l.Contains(tempItem));
-			while (tempList.Count <= maxGroupMember && allVertexes.Count > 0)
+			if (allVertexes.Count > 0)
 			{
-				tempItem = allVertexes.First();
-				tempList.Add(tempItem);
+				var tempItem = allVertexes.First();
+				vertexesGroups.Add(new List<Classes.Vertex>() { tempItem });
 				tempItem.IsInGroup = true;
 				allVertexes.Remove(tempItem);
+				var tempList = vertexesGroups.FirstOrDefault(l => l.Contains(tempItem));
+				while (tempList.Count <= maxGroupMember && allVertexes.Count > 0)
+				{
+					tempItem = allVertexes.First();
+					tempList.Add(tempItem);
+					tempItem.IsInGroup = true;
+					allVertexes.Remove(tempItem);
+				}
 			}
 
 		}
 
-		//int groupIndex = 0;
-		//foreach (var item in allVertexes)
-		//{
-		//	if (!item.IsInGroup)
-		//	{
-		//		vertexesGroups[groupIndex].Add(item);
-		//		item.IsInGroup = true;
-		//		if (groupIndex == vertexesGroups.Count - 1)
-		//		{
-		//			groupIndex = 0;
-		//		}
-		//		else
-		//		{
-		//			groupIndex++;
-		//		}
-		//	}
-		//	else
-		//	{
-		//		Console.WriteLine("falshe - falshe - falshe - falshe - falshe - falshe - falshe - falshe - falshe");
-		//	}
-		//}
-
-		foreach (var item in allVertexes)
+		foreach (var item in tempGraph.GetVertexSet())
 		{
 			if(!item.IsInGroup)
 			{
@@ -407,43 +512,529 @@
 		Console.WriteLine($"vertexesGroups.Count - {vertexesGroups.Count}");
 		Console.WriteLine($"isNotInGroup - {isNotInGroup}");
 
+		for (int i = 0; i < 2; i++)
+		{
+			foreach (var item in tempGraph.GetVertexSet())
+			{
+
+				if (item.Entries.Count < ((range / 4) * 2))
+				{
+
+					var itemList = vertexesGroups.FirstOrDefault(l => l.Contains(item));
+
+					//foreach (List<Classes.Vertex> g in vertexesGroups)
+					//{
+					//	foreach (var v in g)
+					//	{
+					//		if (v.Name == item.Name)
+					//		{
+					//			itemList = g;
+					//			break;
+					//		}
+					//	}
+					//}
+
+					//Console.WriteLine(item.Name);
+					//foreach (var nn in vertexesGroups)
+					//{
+					//	Console.WriteLine("-----------------------------------");
+					//	foreach (var mm in nn)
+					//	{
+					//		Console.Write($"{mm.Name} -");
+					//	}
+					//	Console.WriteLine("\n");
+					//}
+
+					if(itemList == null)
+					{
+						itemList = new List<Classes.Vertex>();
+					}
+
+					var AdjacentsList = new List<Classes.Vertex>();
+					foreach (var v in item.Adjacents)
+					{
+						var tempV = tempGraph.GetVertexSet().FirstOrDefault(vertex => vertex.Name == v);
+						AdjacentsList.Add(tempV);
+					}
+
+					int itemListSimilarity = AdjacentsList.Except(itemList).Count();
+					//foreach (var ii in AdjacentsList)
+					//{
+					//	Console.Write($"{ii.Name} -");
+					//}
+					//Console.WriteLine("\n");
+					//foreach (var jj in itemList)
+					//{
+					//	Console.Write($"{jj.Name} -");
+					//}
+
+					//Console.WriteLine("--------------------------------------------------");
+
+					foreach (var list in vertexesGroups)
+					{
+						if (list != itemList)
+						{
+							var newListSimilarity = AdjacentsList.Except(list).Count();
+
+							if (itemListSimilarity > newListSimilarity)
+							{
+								Console.WriteLine("moved");
+								itemList.Remove(item);
+								list.Add(item);
+								itemList = list;
+								itemListSimilarity = AdjacentsList.Except(list).Count();
+								item.IsInGroup = true;
+							}
+							//else if (itemListSimilarity == newListSimilarity && list.Count < itemList.Count)
+							//{
+							//	itemList.Remove(item);
+							//	list.Add(item);
+							//	itemList = list;
+							//	itemListSimilarity = AdjacentsList.Except(list).Count();
+							//	item.IsInGroup = true;
+							//}
+						}
+					}
+				}
+
+			}
+		}
+
 
 
 		tempGraph.AddVertexGroup(vertexesGroups);
 		tempGraph.AddSingleVertex(allVertexes);
 
 		graph = tempGraph;
+
+		await GetDimentions();
+
+		await GetRandom();
+
+		Console.WriteLine("nn");
+
+		foreach (var edge in graph.GetEdgeSet())
+		{
+			Connect(edge);
+		}
+
 		IsGraphReady = true;
-		launchForm = false;
+		launchNewForm = false;
 
 		Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Finished");
 	}
 
-	public async Task LoadGraphMethod()
+	private async Task GetDimentions()
 	{
+		Dictionary<string, string> displayDimention = await JsRuntime.InvokeAsync<Dictionary<string, string>>("getElementDimension", "body");
+
+		WidthMain = double.Parse(displayDimention["width"]);
+		HeightMain = double.Parse(displayDimention["height"]);
+
+		GetGraphDimention();
+	}
+
+	public async Task GetRandom()
+	{
+		Random number = new Random();
+
+		var maxW = GraphWidth;
+		var maxH = GraphHeight;
+
+		var limitedWidth = maxW - 250;
+		var limitedHeight = maxH - 250;
+
+		var columns = Math.Floor(limitedWidth / 200);
+		var rows = Math.Floor(limitedHeight / 200);
+
+		double distance = 0;
+		int counterX = 0;
+		int counterY = 0;
+
+		var headPositions = new List<List<double>>();
+
+		foreach (var list in graph.GetVertexGroups())
+		{
+			var tempList = list.OrderByDescending(l => l.Entries.Count).ToList();
+			var center = tempList.First();
+
+			foreach (var vertex in tempList)
+			{
+				if (vertex == center)
+				{
+					if (vertex.Name == "4")
+					{
+						Console.WriteLine("1");
+					}
+					//vertex.X = (number.NextDouble() * (((limitedWidth / columns) + counterX * (limitedWidth / columns)) - (counterX * (limitedWidth / columns))) + (counterX * (limitedWidth / columns))) + 125;
+					//vertex.Y = (number.NextDouble() * (((limitedHeight / rows) + counterY * (limitedHeight / rows)) - (counterY * (limitedHeight / rows))) + (counterY * (limitedHeight / rows))) + 125;
+					Console.WriteLine($"B vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+					vertex.X = (number.NextDouble() * ((limitedWidth - 0) + 0) + 125);
+					vertex.Y = (number.NextDouble() * ((limitedHeight - 0) + 0) + 125);
+					Console.WriteLine($"A vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+					Console.WriteLine("------------------------------------------------------------");
+
+					for (int i = 0; i < 5; i++)
+					{
+						foreach (var item in headPositions)
+						{
+							distance = Math.Sqrt(((item[0] - vertex.X) * (item[0] - vertex.X)) + ((item[1] - vertex.Y) * (item[1] - vertex.Y)));
+							while (distance < 150)
+							{
+								Console.WriteLine($"B vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+
+								vertex.X = (number.NextDouble() * ((limitedWidth - 0) + 0) + 125);
+								vertex.Y = (number.NextDouble() * ((limitedHeight - 0) + 0) + 125);
+								distance = Math.Sqrt(((item[0] - vertex.X) * (item[0] - vertex.X)) + ((item[1] - vertex.Y) * (item[1] - vertex.Y)));
+								Console.WriteLine($"A vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+								Console.WriteLine("------------------------------------------------------------");
+
+							}
+						}
+					}
+
+					if (IsGraphLoaded)
+					{
+						var item = graph.GetVertexSet().FirstOrDefault(v => v.Name == vertex.Name);
+						item.X = vertex.X;
+						item.Y = vertex.Y;
+					}
+
+					headPositions.Add(new List<double>() { vertex.X, vertex.Y });
+
+					if (counterX == columns - 1 && counterY == rows - 1)
+					{
+						counterX = 0;
+						counterY = 0;
+					}
+					else
+					{
+						if (counterX == columns - 1)
+						{
+							counterX = 0;
+							counterY++;
+
+							if (counterY == rows)
+							{
+								counterY = 0;
+							}
+
+						}
+						else
+						{
+							counterX++;
+						}
+
+
+					}
+				}
+				else
+				{
+					if (vertex.Entries.Count > 2 && vertex.Entries.Count < 5)
+					{
+						Console.WriteLine($"B vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+
+						vertex.X = number.NextDouble() * ((center.X + 40) - (center.X - 40)) + (center.X - 40);
+						vertex.Y = number.NextDouble() * ((center.Y + 40) - (center.Y - 40)) + (center.Y - 40);
+						Console.WriteLine($"A vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+						Console.WriteLine("------------------------------------------------------------");
+
+						while (distance < 20)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+						while (distance > 40)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+
+						if (IsGraphLoaded)
+						{
+							var item = graph.GetVertexSet().FirstOrDefault(v => v.Name == vertex.Name);
+							item.X = vertex.X;
+							item.Y = vertex.Y;
+						}
+					}
+					else if (vertex.Entries.Count == 2)
+					{
+						Console.WriteLine($"B vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+
+						vertex.X = number.NextDouble() * ((center.X + 60) - (center.X - 60)) + (center.X - 60);
+						vertex.Y = number.NextDouble() * ((center.Y + 60) - (center.Y - 60)) + (center.Y - 60);
+						Console.WriteLine($"A vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+						Console.WriteLine("------------------------------------------------------------");
+
+
+						distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						while (distance < 40)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+						while (distance > 60)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+
+
+						if (IsGraphLoaded)
+						{
+							var item = graph.GetVertexSet().FirstOrDefault(v => v.Name == vertex.Name);
+							item.X = vertex.X;
+							item.Y = vertex.Y;
+						}
+					}
+					else
+					{
+						Console.WriteLine($"B vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+
+						vertex.X = number.NextDouble() * ((center.X + 80) - (center.X - 80)) + (center.X - 80);
+						vertex.Y = number.NextDouble() * ((center.Y + 80) - (center.Y - 80)) + (center.Y - 80);
+						Console.WriteLine($"A vertex {vertex.Name} : X {vertex.X}, Y {vertex.Y}");
+						Console.WriteLine("------------------------------------------------------------");
+
+
+						distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						while (distance < 60)
+						{
+							vertex.X = vertex.X > center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y > center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+						while (distance > 80)
+						{
+							vertex.X = vertex.X < center.X ? vertex.X + 10 : vertex.X - 10;
+							vertex.Y = vertex.Y < center.Y ? vertex.Y + 10 : vertex.Y - 10;
+							distance = Math.Sqrt(((center.X - vertex.X) * (center.X - vertex.X)) + ((center.Y - vertex.Y) * (center.Y - vertex.Y)));
+						}
+
+
+						if (IsGraphLoaded)
+						{
+							var item = graph.GetVertexSet().FirstOrDefault(v => v.Name == vertex.Name);
+							item.X = vertex.X;
+							item.Y = vertex.Y;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void Connect(Classes.PairValueImplementation<Classes.Vertex> edge)
+	{
+		Console.WriteLine($"vertex {edge.Start.Name} : X {edge.Start.X}, Y {edge.Start.Y}");
+		Console.WriteLine($"vertex {edge.End.Name} : X {edge.End.X}, Y {edge.End.Y}");
+		Console.WriteLine("------------------------------");
+
+		var x1 = (edge.Start.X + (edge.Start.IconSize / 2));
+		var y1 = (edge.Start.Y + (edge.Start.IconSize / 2));
+		var x2 = (edge.End.X + (edge.End.IconSize / 2));
+		var y2 = (edge.End.Y + (edge.End.IconSize / 2));
+		double thickness = 0.1;
+
+		var length = Math.Sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+
+		var cx = ((x1 + x2) / 2) - (length / 2);
+		var cy = ((y1 + y2) / 2) - (thickness / 2);
+
+		var angle = Math.Atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
+
+		edge.Length = length;
+		edge.Cx = cx;
+		edge.Cy = cy;
+		edge.Angle = angle;
+	}
+
+	public async Task LoadGraphMethod(int graphNum)
+	{
+		secretKeyCounter = 0;
+		open = false;
 		IsGraphReady = false;
 		graph = new Classes.DirectedGraph();
+		var responce = "";
 
-		var responce = await http.GetStringAsync("./content/json/graph.json");
+		switch (graphNum)
+		{
+			case 1 :
+				responce = await http.GetStringAsync("./content/json/Acc 250 - st 15 - tr 375.json");
+				graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+				break;			
+			case 2 :
+				responce = await http.GetStringAsync("./content/json/Acc 500 - st 30 - tr 750.json");
+				graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+				break;
+			case 3 :
+				responce = await http.GetStringAsync("./content/json/Acc 1000 - st 90 - tr 1500.json");
+				graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+				break;
+			case 4 :
+				responce = await http.GetStringAsync("./content/json/Acc 4000 - st 500 - tr 9000.json");
+				graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+				break;
+			case 1000 :
+				responce = await http.GetStringAsync("./content/json/test.json");
+				graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
+				break;
+			default:
+				return;
+		}
 
-		graph = Newtonsoft.Json.JsonConvert.DeserializeObject<Classes.DirectedGraph>(responce);
 
+
+		await GetDimentions();
 
 		if(graph.GetVertexSet().Count() > 0)
 		{
 			IsGraphReady = true;
-			launchForm = false;
+			launchNewForm = false;
+			launchLoadGraph = false;
+			IsGraphLoaded = true;
 		}
 	}
 
-	public void launchGraphMethod()
+	public async Task launchGraphMethod()
 	{
+		secretKeyCounter = 0;
+		open = false;
 		launchGraph = true;
+	}
+
+	private async Task GetGraphDimention()
+	{
+		var transitions = graph.GetEdgeSet().Count();
+		if (transitions <= 400 * (Math.Pow(1.2, 1)))
+		{
+			GraphHeight = HeightMain * 0.8 * (1.1);
+			GraphWidth = WidthMain * 0.9 * (1.1);
+			GraphScale = 1;
+			Console.WriteLine($"NUMBER 1");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 1)) && transitions <= 400 * (Math.Pow(1.2, 2)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 2));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 2));
+			GraphScale = 0.9;
+			Console.WriteLine($"NUMBER 2");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 2)) && transitions <= 400 * (Math.Pow(1.2, 3)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 3));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 3));
+			GraphScale = 0.8;
+			Console.WriteLine($"NUMBER 3");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 3)) && transitions <= 400 * (Math.Pow(1.2, 4)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 4));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 4));
+			GraphScale = 0.7;
+			Console.WriteLine($"NUMBER 4");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 4)) && transitions <= 400 * (Math.Pow(1.2, 6)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 6));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 6));
+			GraphScale = 0.6;
+			Console.WriteLine($"NUMBER 6");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 6)) && transitions <= 400 * (Math.Pow(1.2, 8)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 8));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 8));
+			GraphScale = 0.5;
+			Console.WriteLine($"NUMBER 8");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 8)) && transitions <= 400 * (Math.Pow(1.2, 10)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 10));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 10));
+			GraphScale = 0.4;
+			Console.WriteLine($"NUMBER 10");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 10)) && transitions <= 400 * (Math.Pow(1.2, 12)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 12));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 12));
+			GraphScale = 0.3;
+			Console.WriteLine($"NUMBER 12");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 12)) && transitions <= 400 * (Math.Pow(1.2, 13)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 13));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 13));
+			GraphScale = 0.2;
+			Console.WriteLine($"NUMBER 13");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 13)) && transitions <= 400 * (Math.Pow(1.2, 14)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 14));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 14));
+			GraphScale = 0.2;
+			Console.WriteLine($"NUMBER 14");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 14)) && transitions <= 400 * (Math.Pow(1.2, 15)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 15));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 15));
+			GraphScale = 0.2;
+			Console.WriteLine($"NUMBER 15");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 15)) && transitions <= 400 * (Math.Pow(1.2, 16)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 16));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 16));
+			GraphScale = 0.2;
+			Console.WriteLine($"NUMBER 16");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 16)) && transitions <= 400 * (Math.Pow(1.2, 17)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 17));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 17));
+			GraphScale = 0.2;
+			Console.WriteLine($"NUMBER 17");
+		}
+		else if (transitions > 400 * (Math.Pow(1.2, 17)))
+		{
+			GraphHeight = HeightMain * 0.8 * (Math.Pow(1.1, 18));
+			GraphWidth = WidthMain * 0.9 * (Math.Pow(1.1, 18));
+			GraphScale = 0.1;
+		}
 	}
 
 	public async Task CloseGraph()
 	{
 		launchGraph = false;
 		Navigation.NavigateTo("/", true);
+	}
+
+	public async Task ToReposition()
+	{
+		await GetRandom();
+
+		foreach (var edge in graph.GetEdgeSet())
+		{
+			if (IsGraphLoaded)
+			{
+				var start = graph.GetVertexSet().FirstOrDefault(v => v.Name == edge.Start.Name);
+				var end = graph.GetVertexSet().FirstOrDefault(v => v.Name == edge.End.Name);
+				if (start != null && end != null)
+				{
+					edge.T1 = start;
+					edge.T2 = end;
+				}
+			}
+
+			Connect(edge);
+		}
+
+		StateHasChanged();
 	}
 }

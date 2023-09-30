@@ -1,22 +1,16 @@
 ﻿@inject IJSRuntime JsRuntime
 
-
-
-
 <div>
     @foreach (var edge in graph.GetEdgeSet())
     {
         if (EdgeFilterMethod(EdgeFilter, edge))
         {
-            Connect(edge);
             <div style='border: none; border-top: 1px dashed gray; z-index: 10; color:gray; padding:0px; margin:0px; height: 0.1px; background-color: none; line-height:0.1px; position:absolute; left: @(edge.Cx)px; top:@(edge.Cy )px; width:@(edge.Length)px; -moz-transform:rotate(@(edge.Angle)deg); -webkit-transform:rotate(@(edge.Angle)deg); -o-transform:rotate(@(edge.Angle)deg); -ms-transform:rotate(@(edge.Angle)deg); transform:rotate(@(edge.Angle)deg);'>
-                <div style="padding-top: -1px" title="@($"From : {edge.Start.Name} \nTo : {edge.End.Name}")">
+                <div style="padding-left: @($"{(edge.End.IconSize / 2)* 0.6}px")" title="@($"From : {edge.Start.Name} \nTo : {edge.End.Name}")">
                    @arrow
                 </div>
             </div>
         }
-
-
     }
 </div>
 
@@ -32,6 +26,10 @@
 
     [Parameter]
     public Classes.Vertex passedVertex { get; set; }
+
+    [Parameter]
+    public List<Classes.Vertex> passedGroup { get; set; }
+
     private string arrow { get; set; } = "<";
 
 
@@ -42,11 +40,11 @@
         await base.OnInitializedAsync();
 
         passedVertex = new Classes.Vertex();
+        passedGroup = new List<Classes.Vertex>();
 
         EdgeFilter = "";
 
-        //await JsRuntime.InvokeVoidAsync("zoomWheel");
-        await JsRuntime.InvokeVoidAsync("makeDivZoomable", "Zoomable");
+
     }
 
     protected override async Task OnParametersSetAsync()
@@ -56,64 +54,50 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(graph);
 
-
-        //if (!firstRender)
-        //{
-        //    List<Classes.Vertex> vertexes = new List<Classes.Vertex>();
-
-        //    foreach (var item in graph.GetVertexSet())
-        //    {
-        //        vertexes.Add(item);
-        //    }
-
-
-        //    string json = Newtonsoft.Json.JsonConvert.SerializeObject(graph);
-
-        //    Console.WriteLine(json);
-        //}
+            Console.WriteLine(json);
+        }
 
 
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void Connect(Classes.PairValueImplementation<Classes.Vertex> edge)
-    {
-        var x1 = (edge.Start.X + (edge.Start.IconSize / 2));
-        var y1 = (edge.Start.Y + (edge.Start.IconSize / 2));
-        var x2 = (edge.End.X + (edge.End.IconSize / 2));
-        var y2 = (edge.End.Y + (edge.End.IconSize / 2));
-        double thickness = 0.1;
-
-        var length = Math.Sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
-
-        var cx = ((x1 + x2) / 2) - (length / 2);
-        var cy = ((y1 + y2) / 2) - (thickness / 2);
-
-        var angle = Math.Atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
-
-        edge.Length = length;
-        edge.Cx = cx;
-        edge.Cy = cy;
-        edge.Angle = angle;
-    }
-
     public bool EdgeFilterMethod(string filter , Classes.PairValueImplementation<Classes.Vertex> edge)
     {
+
         bool condition;
+
         switch (filter)
         {
             case "ToMain":
-                condition = edge.End.IsStore;
-                return condition;
+                if (edge.End.IsStore)
+                {
+                    condition = edge.End.IsStore;
+                    return condition;
+
+                }else
+                {
+                    return false;
+                }
             case "MainTo":
                 condition = edge.Start.IsStore;
                 return condition;
             case "NotMain":
                 condition = !edge.Start.IsStore && !edge.End.IsStore;
                 return condition;
-            case "NotInGroup":
-                condition = !edge.Start.IsInGroup && !edge.End.IsInGroup;
+            case "OneGroup":
+                condition = false;
+                foreach (var v in passedGroup)
+                {
+                    if (v.Name == edge.Start.Name || v.Name == edge.End.Name)
+                    {
+                        condition = true;
+                        break;
+                    }
+                }
                 return condition;
             case "OneVertex":
                 condition = edge.Start.Name == passedVertex.Name || edge.End.Name == passedVertex.Name;

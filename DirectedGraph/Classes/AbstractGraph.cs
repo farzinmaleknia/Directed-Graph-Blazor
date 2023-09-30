@@ -6,6 +6,7 @@ namespace DirectedGraph.Classes
     {
         public readonly List<Vertex> VertexSet = new List<Vertex>();
         public readonly List<Vertex> SingleVertexSet = new List<Vertex>();
+        public readonly List<Vertex> Stores = new List<Vertex>();
         public readonly List<List<Vertex>> VertexesGroups = new List<List<Vertex>>();
         public readonly List<PairValueImplementation<Vertex>> EdgeSet = new List<PairValueImplementation<Vertex>>();
 
@@ -50,7 +51,16 @@ namespace DirectedGraph.Classes
             }
         }
 
-        public void AddVertexGroup(List<List<Vertex>> vertexGroups)
+		public bool AddStore(Vertex vertex)
+		{
+			if (vertex == null) throw new ArgumentNullException();
+			if (Stores.Contains(vertex)) return false;
+
+			Stores.Add(vertex);
+			return true;
+		}
+
+		public void AddVertexGroup(List<List<Vertex>> vertexGroups)
         {
             if (vertexGroups == null) throw new ArgumentNullException();
 
@@ -120,6 +130,11 @@ namespace DirectedGraph.Classes
         public List<Vertex> GetSingleVertexSet()
         {
             return SingleVertexSet;
+        }
+
+        public List<Vertex> GetStoresSet()
+        {
+            return Stores;
         }
 
         public IEnumerable<PairValueImplementation<Vertex>> GetEdgeSet()

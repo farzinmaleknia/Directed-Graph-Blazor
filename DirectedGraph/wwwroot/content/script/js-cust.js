@@ -3,9 +3,10 @@ function getElementDimension(id) {
     const dimention = document.getElementById(`${id}`);
     if (dimention) {
         var offsets = dimention.getBoundingClientRect();
+
         return {
-            height: `${dimention.offsetHeight}`,
-            width: `${dimention.offsetWidth}`,
+            height: `${document.documentElement.clientHeight}`,
+            width: `${dimention.clientWidth}`,
             top: `${offsets.top}`,
             left: `${offsets.left}`,
             right: `${offsets.right}`,
@@ -17,8 +18,7 @@ function getElementDimension(id) {
 
 }
 
-function makeDivZoomable(id) {
-
+function makeDivZoomable(id, scale) {
     var isDown = false;
     var div = document.getElementById(`${id}`); //.getElementsByTagName('p')
     zX = 1;
@@ -26,6 +26,24 @@ function makeDivZoomable(id) {
     newTOy = 0;
     Tx = 0;
     Ty = 0;
+
+    var diff = 1 - scale;
+    var times = Math.abs(diff * 10);
+    var dir2 = - (diff / times);
+
+    for (var i = 0; i < times; i++) {
+        zX += dir2;
+        newTOx = div.clientWidth / 2;
+        newTOy = div.clientHeight / 2;
+
+        div.style.transformOrigin = `${newTOx}px ${newTOy}px`;
+        div.style.transform = `scale(${zX}) translate(${Tx}px, ${Ty}px)`;
+
+        console.log(`diff - ${diff}, times - ${times}, dir2 - ${dir2}, zX - ${zX}`)
+
+    }
+
+
 
     window.addEventListener('wheel', function (e) {
         var dir;
@@ -53,6 +71,8 @@ function makeDivZoomable(id) {
             newTy = -newTy;
         }
 
+        console.log(zX)
+
         newTOx = mousePosition.x;
         newTOy = mousePosition.y;
 
@@ -69,6 +89,7 @@ function makeDivZoomable(id) {
 
             } else {
                 div.style.transform = `scale(${zX})`;
+
             }
         }
 
@@ -106,7 +127,6 @@ function makeDivZoomable(id) {
             div.style.top = (mousePosition.y + offset[1]) + 'px';
         }
     }, true);
-
 }
 
 function refreshScale(id, top, left) {
