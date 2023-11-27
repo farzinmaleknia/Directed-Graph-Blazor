@@ -1,0 +1,495 @@
+﻿@page "/HighchartsDirectedGraph"
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager Navigation
+@inject HttpClient httpClient
+
+<div id="container2" style="width:100%; height:800px;"></div>
+
+
+@if (true)
+{
+    <div class="d-flex justify-content-center ">
+        <button id="button1" class="btn btn-primary mx-2">
+            Simple chart
+        </button>
+        <button id="button2" class="btn btn-success mx-2">
+            Euler chart
+        </button>
+        <button id="button3" class="btn btn-warning mx-2">
+            Verlet chart
+        </button>
+
+        <button id="ModalForHighChart" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#HighchartPointModal">
+            click
+        </button>
+    </div>
+
+}
+
+
+<div class="modal fade" id="HighchartPointModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="HighchartPointModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h1 class="modal-title fs-5" id="HighchartPointModalLabel">Point Details</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseModal"></button>
+                    </div>
+
+                    @if (!ShowModal)
+                    {
+                        <button @onclick="ShowContent" class="btn btn-warning">
+                            Show
+                        </button>
+
+                    }
+                    else
+                    {
+                        <div>
+                            این نقطه مربوط به شخص @(Title) میباشد
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@*<div class="modal fade" id="HighchartPointModalLabel" tabindex="-1" aria-labelledby="HighchartPointModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            @if (!ShowModal)
+            {
+                <div class="d-flex justify-content-between mb-3">
+                    <h1 class="modal-title fs-5" id="vertexModelLabel"></h1>
+                    <button type="button" @onclick="CloseModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <button @onclick="ShowContent" class="btn btn-warning">
+                        Show
+                    </button>
+                </div>
+
+            }
+            else
+            {
+                <div class="d-flex justify-content-between mb-3">
+                    <h1 class="modal-title fs-5" id="vertexModelLabel">@(Title)</h1>
+                    <button type="button" @onclick="CloseModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div >
+                        این صفحه مربوط به نقطه @(Title) میباشد
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>*@
+
+@code {
+    public List<List<string>> Transitions { get; set; }
+    public List<Models.node> Nodes { get; set; }
+
+    private bool ShowModal { get; set; }
+
+    static private string _title { get; set; }
+    public string Title {
+        get
+        {
+            return _title;
+        }
+        set
+        {
+            _title = value;
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        Transitions = new List<List<string>>();
+        Nodes = new List<Models.node>();
+
+        _title = "blank";
+        ShowModal = false;
+
+        await FetchAllData();
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //var dotNetReference = DotNetObjectReference.Create(this);
+            //await JsRuntime.InvokeVoidAsync("handleDotNetCallback", null, dotNetReference);
+
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task FetchAllData()
+    {
+        var random = new Random();
+
+        try
+        {
+            //var test = await httpClient.GetAsync("https://192.168.1.4:44395/api/AccountRelations/FetchAllGet");
+
+            var responseTransitions = await httpClient.PostAsync("https://nazmdb:44395/api/AccountRelations/FetchAllPost", null);
+            var dataTransitions = await responseTransitions.Content.ReadAsStringAsync();
+            var transitions = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(dataTransitions);
+
+
+            var responseAccounts = await httpClient.PostAsync("https://nazmdb:44395/api/AccountColors/FetchAllPost", null);
+            var dataAccounts = await responseAccounts.Content.ReadAsStringAsync();
+            var accounts = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.Account>>(dataAccounts);
+
+
+
+
+            foreach (var item in transitions)
+            {
+                //if (Transitions.Count() < 50)
+                //{
+                var l = new List<string>();
+                foreach (var i in item)
+                {
+                    l.Add(i.Value);
+                }
+                Transitions.Add(l);
+                //}
+
+            }
+
+            foreach (var item in accounts)
+            {
+                //foreach (var i in Transitions)
+                //{
+                //    if (i.Contains(item.AccountNo.ToString()))
+                //    {
+                Nodes.Add(
+                    new Models.node()
+                            {
+                                id = item.AccountNo.ToString(),
+                                title = item.Title,
+                                description = item.Descript,
+                                dataLabels = new Models.DataLabels()
+                                {
+                                    enabled = true,
+                                },
+                                marker = new Models.Marker()
+                                {
+                                    fillColor = item.AccountColor,
+                                    radius = (item.AccountCount / 3),
+                                }
+                            }
+                );
+                //    }
+
+                //}
+            }
+        }
+        catch (Exception m)
+        {
+            Console.WriteLine(m); ;
+        }
+
+        if (Transitions.Count <= 0)
+        {
+            DataRenderer();
+        }
+
+        if (Transitions.Count > 0)
+        {
+            RenderHighcharts();
+        }
+
+    }
+
+    private async Task RenderHighcharts()
+    {
+        var random = new Random();
+        var transition = new List<List<string>>();
+        var names = new List<string>();
+
+        Console.WriteLine(typeof(Program).Assembly.GetName().Name);
+
+
+        for (int i = 0; i < 200; i++)
+        {
+            names.Add($"{i + 1}");
+        }
+
+        for (int i = 0; i < 300; i++)
+        {
+            var possibility = random.Next(0, 100);
+
+            if (possibility <= 80)
+            {
+                transition.Add(new List<string> { names[random.Next(0, 10)], names[random.Next(0, 200)] });
+            }
+            else
+            {
+                transition.Add(new List<string> { names[random.Next(0, 200)], names[random.Next(0, 200)] });
+            }
+
+        }
+
+        string jsonNodes = Newtonsoft.Json.JsonConvert.SerializeObject(Nodes);
+
+        await JsRuntime.InvokeVoidAsync("highchartsDG", "button1", Transitions, jsonNodes);
+        await JsRuntime.InvokeVoidAsync("highchartsDGTwo", "button2", "euler", 120, Transitions, jsonNodes);
+        await JsRuntime.InvokeVoidAsync("highchartsDGThree", "button3", Transitions, jsonNodes);
+
+
+    }
+
+    [JSInvokable("JsCallback")]
+    public static bool JsCallback(string strBody)
+    {
+        Console.WriteLine($"from JS : {strBody}");
+
+        _title = strBody;
+        return true;
+    }
+
+    public void ShowContent()
+    {
+        var t = Title;
+        ShowModal = true;
+    }
+
+    public void CloseModal()
+    {
+        ShowModal = false;
+    }
+
+    public async Task CloseGraph()
+    {
+        //launchGraph = false;
+        Navigation.NavigateTo("/", true);
+    }
+
+    private List<List<string>> DuplicateFinder(List<List<string>> lst)
+    {
+        Console.WriteLine($"count : {lst.Count()}");
+
+        var myListTemp = new List<List<string>>();        
+
+        int intIndex = 0;
+        foreach (List<string> item in lst)
+        {
+            bool isExist = false;
+            foreach (var itemTemp in myListTemp)
+            {
+                if (itemTemp[0] == item[1] && itemTemp[1] == item[0])
+                {
+                    Console.WriteLine($"item[{intIndex}]: '{item[0]}', '{item[1]}' ------ '{itemTemp[0]}', '{itemTemp[1]}'");
+                    isExist = true;
+                    break;
+                }
+            }
+            if(isExist == false)
+            {
+                myListTemp.Add(item);
+            }
+
+            intIndex++;
+        }
+
+        Console.WriteLine($"count Temp : {myListTemp.Count()}");
+
+        return myListTemp;
+    }
+
+    private async Task DataRenderer()
+    {
+
+        for (int i = 0; i < 150; i++)
+        {
+            if (i + 1 < 50)
+            {
+                Transitions.Add(new List<string>() { $"{i + 1}", "1001" });
+            }
+            if (i + 1 > 50 && i+1 < 100)
+            {
+                Transitions.Add(new List<string>() { $"{i + 1}", "1002" });
+            }
+            if (i + 1 > 100 && i + 1 < 150)
+            {
+                Transitions.Add(new List<string>() { $"{i + 1}", "1003" });
+            }
+        }
+
+
+
+        //**************************************************************************************/
+        //********************************* From Subs to Other Mains /
+
+
+
+        //for (int i = 0; i < 30; i++)
+        //{
+        //	var num = random.Next(1, 300);
+
+        //	if (num < 100)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		Console.WriteLine(num2);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1002" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1003" });
+        //		}
+        //	}
+        //	if (num > 100 && num < 200)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1001" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1003" });
+        //		}
+        //	}
+        //	if (num > 200 && num < 300)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1002" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { $"{num}", "1001" });
+        //		}
+        //	}
+        //}
+
+
+        //**************************************************************************************/
+        //********************************* From Subs to Other Groups Subs /
+
+        //for (int i = 0; i < 30; i++)
+        //{
+        //	var num = random.Next(1, 300);
+
+        //	if (num < 100)
+        //	{
+        //		var num2 = random.Next(100, 300);
+        //		Transitions.Add(new List<string>() { $"{num}", $"{num2}" });
+        //	}
+        //	if (num > 100 && num < 200)
+        //	{
+        //		var num2 = random.Next(0, 300);
+        //		while (num2 > 100 && num2 < 200)
+        //		{
+        //			num2 = random.Next(0, 300);
+        //		}
+        //		Transitions.Add(new List<string>() { $"{num}", $"{num2}" });
+        //	}
+        //	if (num > 200 && num < 300)
+        //	{
+        //		var num2 = random.Next(0, 200);
+        //		Transitions.Add(new List<string>() { $"{num}", $"{num2}" });
+        //	}
+        //}
+
+        //**************************************************************************************/
+        //********************************* From Mains to Mains /
+
+        //for (int i = 0; i < 200; i++)
+        //{
+        //	var num = random.Next(1, 4);
+
+        //	if (num == 1)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { "1001", "1002" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { "1001", "1003" });
+        //		}
+        //	}
+        //	if (num == 2)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { "1002", "1001" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { "1002", "1003" });
+        //		}
+        //	}
+        //	if (num == 3)
+        //	{
+        //		var num2 = random.Next(1, 3);
+        //		if (num2 == 1)
+        //		{
+        //			Transitions.Add(new List<string>() { "1003", "1002" });
+        //		}
+        //		else
+        //		{
+        //			Transitions.Add(new List<string>() { "1003", "1001" });
+        //		}
+        //	}
+        //}
+
+
+
+        //**************************************************************************************/
+        //********************************* Like arati Data /
+
+        //var myList = new List<int>();
+
+        //for (int i = 0; i < 50; i++)
+        //{
+        //    myList.Add(i + 1);
+        //}
+
+
+        //for (int i = 0; i < 20; i++)
+        //{
+        //    for (int j = 0; j < 40; j++)
+        //    {
+        //        if(j > i )
+        //        {
+        //            Transitions.Add(new List<string>() { $"{i + 1}", $"{j + 1}" });
+
+        //        }
+        //    }
+        //}
+
+        //foreach (var item in Transitions)
+        //{
+        //    foreach (var i in item)
+        //    {
+        //        Console.Write($"{i} ,");
+
+
+        //    }
+        //    Console.WriteLine("......................");
+        //}
+    }
+
+}

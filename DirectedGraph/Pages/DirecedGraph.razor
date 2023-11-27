@@ -189,7 +189,7 @@
 
 	public async Task RefreshVertexPositions(bool alsoPositions)
 	{
-		await JsRuntime.InvokeVoidAsync("refreshScale", "Zoomable", $"{(HeightMain - Height) / 2}", $"{(WidthMain - Width) / 2}");
+		await JsRuntime.InvokeVoidAsync("refreshScale", "Zoomable", $"{(HeightMain - Height) / 2}", $"{(WidthMain - Width) / 2}", Scale);
 		if(alsoPositions)
 		{
 			await OnReposition.InvokeAsync();
