@@ -1,0 +1,357 @@
+﻿@page "/Echarts"
+
+@inject IJSRuntime JsRuntime
+@inject NavigationManager Navigation
+@inject HttpClient httpClient
+
+@using Blazor.ECharts.Options
+@using Blazor.ECharts.Options.Enum
+@using L = Blazor.ECharts.Options.Series
+
+<div class="row m-5">
+    <div class=" col-lg-6" style="min-height: 400px;">
+        <div class="" >
+            <ELine Option="@Option1" Class="chart-normal" Theme="light"></ELine>
+
+        </div>
+
+    </div>
+    <div class="col-lg-6" style="height: 400px;">
+        <ELine Option="@Option1" Class="chart-container" Theme="light"></ELine>
+
+    </div>
+
+    <div class="col-lg-6" style="min-height: 400px;">
+        <EBar Option="@Option2" Class="chart-fill" Theme="light"></EBar>
+    </div>
+
+    <div class="col-lg-6" style="min-height: 400px;">
+
+        <EBar Option="@Option3" Class="chart-normal" Theme="light"></EBar>
+    </div>
+</div>
+
+@code {
+    private EChartsOption<L.Line.Line> Option1;
+    private EChartsOption<L.Bar.Bar> Option2;
+    private EChartsOption<L.Bar.Bar> Option3;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        Option1 = new()
+        {
+            Title = new()
+            {
+                Text = "Line Chart"
+            },
+            Tooltip = new Tooltip {
+                Trigger = TooltipTrigger.Item,
+            },
+            YAxis = new()
+            {
+                new()
+                {
+                    Type = AxisType.Value,
+                },
+
+            },
+            XAxis = new()
+            {
+                new()
+                {
+                    Type = AxisType.Category,
+                    BoundaryGap = false,
+                    Data = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }
+                }
+            },
+            Series = new() {
+                new L.Line.Line()
+                {
+                    Type = "line",
+                    Label = new Blazor.ECharts.Options.Series.Label()
+                    {
+                        Show = true,
+                    },
+                    Data = new[] { 820, 932, 901, 934, 1290, 1330, 1320 },
+                    Smooth = true,
+                    LineStyle= new LineStyle()
+                    {
+                        Type = LineStyleType.Dashed,
+                    },
+                },
+                new L.Line.Line()
+                {
+                    Type = "line",                    
+                    Label = new Blazor.ECharts.Options.Series.Label()
+                    {
+                        Show = true,
+                        Distance = 2,
+                    },
+                    Data = new[] { 612, 532, 450, 721, 315, 632, 129 },
+                    Smooth = true,
+                    LineStyle= new LineStyle()
+                    {
+                        Type = LineStyleType.Dashed,
+                        Color = "red",
+                    },
+                    ItemStyle = new Blazor.ECharts.Options.Series.ItemStyle()
+                    {
+                        Color = "red",
+                    }
+                },
+
+            }
+        };
+
+        Option2 = new()
+            {
+                Title = new()
+                {
+                    Text = "tyle",
+                    TextStyle = new()
+                    {
+                        FontFamily = "Iranian Sans",
+                    }
+                },
+                TextStyle = new()
+                {
+                    FontFamily = "Iranian Sans",
+                },
+                Tooltip = new Tooltip
+                {
+                    Trigger = TooltipTrigger.Item,
+                    AxisPointer = new TooltipAxisPointer()
+                    {
+                        Type = AxisPointerType.Shadow,
+                    },
+                    TextStyle = new()
+                    {
+                        FontFamily = "Iranian Sans",
+                    }
+
+                },
+                Legend = new Legend()
+                {
+                    Data = new[] { "جنگل", "کوهستان", "کویر", "دشت" },
+                    TextStyle = new()
+                    {
+                        FontFamily = "Iranian Sans",
+                    }
+                },
+                XAxis = new()
+                {
+                    new()
+                    {
+                        Type = AxisType.Category,
+                        Data = new[] { "2012", "2013", "2014", "2015", "2016"},
+                        
+                    }
+                },
+                YAxis = new()
+                {
+                    new()
+                    {
+                        Type = AxisType.Value
+                    }
+                },
+                Series = new()
+                {
+                    new L.Bar.Bar()
+                    {
+                        Name = "جنگل",
+                        BarGap = "0%",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+                            Position = LabelPosition.Inside,
+                            Align = Align2.Center,
+                            Rotate = 90,
+                            TextStyle = new()
+                            {
+                                FontFamily = "Iranian Sans",
+                            }
+                        },
+                        Data = new[] { 320, 332, 301, 334, 390 },
+
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "کوهستان",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+                            Position = LabelPosition.Inside,
+                            Align = Align2.Center,
+                            Rotate = 90,
+                            TextStyle = new()
+                            {
+                                FontFamily = "Iranian Sans",
+                            }, 
+                        },
+
+                        Data = new[] { 220, 182, 191, 234, 290 },
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "کویر",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+                            Position = LabelPosition.Inside,
+                            Align = Align2.Center,
+                            Rotate = 90,
+                            TextStyle = new()
+                            {
+                                FontFamily = "Iranian Sans",
+                            }
+                        },
+
+                        Data = new[] { 150, 232, 201, 154, 190 },
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "دشت",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+                            Position = LabelPosition.Inside,
+                            Align = Align2.Center,
+                            Rotate = 90,
+                            TextStyle = new()
+                            {
+                                FontFamily = "Iranian Sans",
+                            }
+                        },
+
+                        Data = new[] { 98, 77, 101, 99, 40 },
+                    },
+                },
+
+            };
+
+        // Option2 = new()
+        // {
+        //     Title = new()
+        //     {
+        //         Text = "Bar Chart"
+        //     },
+        //     YAxis = new()
+        //     {
+        //         new()
+        //         {
+        //             Type = AxisType.Value
+        //         }
+        //     },
+        //     XAxis = new()
+        //     {
+        //         new()
+        //         {
+        //             Type = AxisType.Category,
+        //             Data = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
+        //         }
+        //     },
+        //     Series = new() 
+        //     {
+        //         new L.Bar.Bar()
+        //         {
+        //             Name="ferii",
+        //             Type = "Bar",
+        //             Data = new[] { 820, 932, 901, 934, 1290, 1330, 1320 },
+        //             Smooth = true,
+        //             BarCategoryGap = 25,
+        //             LineStyle = new { normal = new { width = 3, shadowColor = "rgba(0,0,0,0.4)", shadowBlur = 10, shadowOffsetY = 10 } },
+        //         }
+        //     }
+        // };
+
+        Option3 = new()
+            {
+                Title = new()
+                {
+                    Text = "Stacked Horizontal Chart"
+                },
+                Tooltip = new Tooltip
+                {
+                    Trigger = TooltipTrigger.Item,
+                    AxisPointer = new TooltipAxisPointer()
+                    {
+                        Type = AxisPointerType.Shadow,
+                    }
+                },
+                Legend = new Legend()
+                {
+                    Data = new[] { "جنگل", "کوهستان", "کویر", "دشت" }
+                },
+                YAxis = new()
+                {
+                    new()
+                    {
+                        Type = AxisType.Category,
+                        Data = new[] { "2012", "2013", "2014", "2015", "2016"},
+                    }
+                },
+                XAxis = new()
+                {
+                    new()
+                    {
+                        Type = AxisType.Value
+                    }
+                },
+                Series = new()
+                {
+                    new L.Bar.Bar()
+                    {
+                        Name = "جنگل",
+                        Stack = "total",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+                        },
+                        Data = new[] { 320, 332, 301, 334, 390 },
+
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "کوهستان",
+                        Stack = "total",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+
+                        },
+
+                        Data = new[] { 220, 182, 191, 234, 290 },
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "کویر",
+                        Stack = "total",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+
+                        },
+
+                        Data = new[] { 150, 232, 201, 154, 190 },
+                    },
+                    new L.Bar.Bar()
+                    {
+                        Name = "دشت",
+                        Stack = "total",
+                        Label = new Blazor.ECharts.Options.Series.Label()
+                        {
+                            Show = true,
+
+                        },
+
+                        Data = new[] { 98, 77, 101, 99, 40 },
+                    },
+                },
+
+            };
+    }
+
+
+}

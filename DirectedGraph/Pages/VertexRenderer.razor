@@ -5,10 +5,10 @@
 
 @foreach (var item in graph.GetVertexSet())
 {
-	<img src="@($"./images/circle-{item.Color}.png")" alt="" width="@(item.IconSize)"
+	<img src="@($"./images/circle-{item.Color}.png?v=1.2")" alt="" width="@(item.IconSize)"
 		@onclick="() => passingVertex(item)"
-		style="@($"color: black; z-index: 20; font-size: {item.IconSize}px; color: {item.Color}; position: absolute; left: {(item.X)}px; top: {item.Y}px;")"
-		title="@($"Name : {item.Name} \nTotal Entries : {item.Entries.Count} \nTotal Departures : {item.Adjacents.Count - item.Entries.Count}")" 
+		 style="@($"color: black; z-index: 20; font-size: {item.IconSize}px; color: {item.Color}; position: absolute; left: {(item.X)}px; top: {item.Y}px; direction: rtl;")"
+		title="@($"نام : {item.Name} \nتعداد ورودی ها : {item.Entries.Count} \nتعداد خروجی ها : {item.Adjacents.Count - item.Entries.Count}")" 
 		data-bs-toggle="modal"
 		data-bs-target="#optionModel" />
 

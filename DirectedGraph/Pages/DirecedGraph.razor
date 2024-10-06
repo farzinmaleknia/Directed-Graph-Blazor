@@ -6,22 +6,22 @@
 	<div class="bg-dark bg-opacity-50" style="@($"position: absolute; height: {HeightMain}px; width: {WidthMain}px; top: 0; left: 0;")">
 
 		<div class="d-flex flex-row-reverse mt-2 mx-4">
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Close" @onclick="Close">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="بستن" @onclick="Close">
 				<i class="mdi mdi-close mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Refresh Psitions" @onclick="() => RefreshVertexPositions(true)">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="تغییر جانمایی نقاط" @onclick="() => RefreshVertexPositions(true)">
 				<i class="mdi mdi-adjust mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Recenter graph" @onclick="() => RefreshVertexPositions(false)">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="تراز کردن کادر" @onclick="() => RefreshVertexPositions(false)">
 				<i class="mdi mdi-image-size-select-small mdi-24px"></i>
 			</button>
-			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title="Filter by order : All / To Stores / Stores to / Not stores " @onclick="OnEdgeFilterClicked">
+			<button class="btn btn-light btn-sm rounded-circle" style="margin-right:5px; z-index: 100;" title=" فیلتر : همه / به سمت پرتراکنش ها / پرتراکنش ها به باقی / غیر از پرتراکنش ها" @onclick="OnEdgeFilterClicked">
 				<i class="mdi mdi-filter mdi-24px"></i>
 			</button>
 		</div>
 
 		<div id="Zoomable" class="bg-dark bg-gradient" style="@($"position: absolute; height: {Height}px; width: {Width}px; top: {(HeightMain - Height) / 2}px; left: {(WidthMain - Width) / 2}px;")">
-			<div id="directed-graph" class="bg-dark" style="@($"position: absolute; height: {(Height - 10)}px; width: {(Width - 10)}px; top: 5px; left: 5px;")">
+		<div id="directed-graph" class="" style="@($"position: absolute; background-color: #f5f4f2; height: {(Height - 10)}px; width: {(Width - 10)}px; top: 5px; left: 5px;")">
 
 				<VertexRenderer graph="@(graph)"
 					OnVertexChanged="passingVertexFromVertexRenderer"/>
@@ -41,15 +41,15 @@
 			<div class="modal-content">
 				<div class="modal-body">
 					<div class="d-flex flex-column align-content-around">
-						<button type="button" class="btn btn-primary btn-sm mb-1" title="Filter this vertex" data-bs-dismiss="modal" @onclick="() => OnFilterOne(true)">
-							Filter this vertex
+						<button type="button" class="btn btn-primary btn-sm mb-1" title="فیلتر کردن این نقطه" data-bs-dismiss="modal" @onclick="() => OnFilterOne(true)">
+						فیلتر کردن این نقطه
 						</button>
-						<button type="button" class="btn btn-primary btn-sm mb-1" title="Filter this group" data-bs-dismiss="modal" @onclick="() => OnFilterOne(false)">
-							Filter this group
+						<button type="button" class="btn btn-primary btn-sm mb-1" title="فیلتر کردن این گروه از نقاط" data-bs-dismiss="modal" @onclick="() => OnFilterOne(false)">
+						فیلتر کردن این گروه از نقاط
 						</button>
 
-						<button type="button" class="btn btn-success btn-sm" title="Details" data-bs-toggle="modal" data-bs-target="#vertexModel">
-							Details
+						<button type="button" class="btn btn-success btn-sm" title="جزئیات" data-bs-toggle="modal" data-bs-target="#vertexModel">
+						جزئیات
 						</button>
 					</div>
 				</div>
@@ -58,10 +58,10 @@
 	</div>
 
 	<div class="modal fade" id="vertexModel" tabindex="-1" aria-labelledby="vertexModelLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
-					<div>
+					<div style="direction: rtl">
 						<div class="d-flex justify-content-between mb-3">
 							<h1 class="modal-title fs-5" id="vertexModelLabel">@(passedVertex.Name)</h1>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -71,7 +71,7 @@
 							<li>
 								<div class="row mb-2">
 									<div class="col-sm-6">
-										Total Connection :
+										تعداد تراکنش ها :
 									</div>
 									<div class="col-sm-6">
 										@(passedVertex.Adjacents.Count),
@@ -81,7 +81,7 @@
 							<li>
 								<div class="row mb-2">
 									<div class="col-sm-6">
-										Total Entries :
+										تعداد تراکنش های ورودی :
 									</div>
 									<div class="col-sm-6">
 										@(passedVertex.Entries.Count),
@@ -91,7 +91,7 @@
 							<li>
 								<div class="row mb-2">
 									<div class="col-sm-6">
-										Total Departures :
+										تعداد تراکنش های خروجی :
 									</div>
 									<div class="col-sm-6">
 										@(passedVertex.Adjacents.Count - passedVertex.Entries.Count),
@@ -101,7 +101,7 @@
 							<li>
 								<div class="row mb-2">
 									<div class="col-sm-6">
-										All the connection :
+										طرف های تراکنش :
 									</div>
 									<div class="col-sm-6">
 										@foreach (var item in passedVertex.Adjacents)

@@ -4,25 +4,25 @@
 @inject NavigationManager Navigation
 @inject HttpClient httpClient
 
-<div id="container2" style="width:100%; height:800px;"></div>
+<div id="container2" style="width:100%; height:95%;"></div>
 
 
 @if (true)
 {
     <div class="d-flex justify-content-center ">
         <button id="button1" class="btn btn-primary mx-2">
-            Simple chart
+            نمایش
         </button>
-        <button id="button2" class="btn btn-success mx-2">
-            Euler chart
+@*         <button id="button2" class="btn btn-success mx-2">
+            نمونه یک
         </button>
         <button id="button3" class="btn btn-warning mx-2">
-            Verlet chart
+            نمونه دو
         </button>
 
         <button id="ModalForHighChart" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#HighchartPointModal">
             click
-        </button>
+        </button> *@
     </div>
 
 }
@@ -32,16 +32,16 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body">
-                <div>
+                <div style="direction:rtl">
                     <div class="d-flex justify-content-between mb-3">
-                        <h1 class="modal-title fs-5" id="HighchartPointModalLabel">Point Details</h1>
+                        <h1 class="modal-title fs-5" id="HighchartPointModalLabel">جزییات نقطه</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseModal"></button>
                     </div>
 
                     @if (!ShowModal)
                     {
                         <button @onclick="ShowContent" class="btn btn-warning">
-                            Show
+                            نمایش
                         </button>
 
                     }
@@ -141,8 +141,6 @@
     {
         var random = new Random();
 
-
-
         try
         {
             //var test = await httpClient.GetAsync("https://192.168.1.4:44395/api/AccountRelations/FetchAllGet");
@@ -224,7 +222,7 @@
         var transition = new List<List<string>>();
         var names = new List<string>();
 
-        Console.WriteLine(typeof(Program).Assembly.GetName().Name);
+        //Console.WriteLine(typeof(Program).Assembly.GetName().Name);
 
 
         for (int i = 0; i < 200; i++)

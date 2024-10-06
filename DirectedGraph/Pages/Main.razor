@@ -6,33 +6,33 @@
 <div class="my-5">
 	<div class="mb-2 d-flex justify-content-center">
 		<button class="btn btn-success" @onclick="launchNewFormMethod">
-			Generate a graph
+			ایجاد یک گراف
 		</button>
 	</div>
 		
 
 	@if (launchNewForm)
 	{
-		<div class="mb-2 d-flex justify-content-center" style="background-color: lightgray; padding: 20px; margin: 10px;">
+		<div class="mb-2 d-flex justify-content-center" style="direction: rtl; background-color: lightgray; padding: 20px; margin: 10px;">
 			<EditForm Model="Model" OnValidSubmit="InitialGraph">
 				<div class="mb-3">
-					<label for="Accounts" class="form-label">Accounts Count:</label>
+					<label for="Accounts" class="form-label">تعداد حساب ها:</label>
 					<InputNumber id="Accounts" class="form-control" @bind-Value="Model.Accounts" />
 				</div>
 
 				<div class="mb-3">
-					<label for="stores" class="form-label">Stores Count:</label>
+					<label for="stores" class="form-label">تعداد پرتراکنش ها:</label>
 					<InputNumber id="stores" class="form-control" @bind-Value="Model.Stores" />
 				</div>
 
 				<div class="mb-3">
-					<label for="Transitions" class="form-label">Transitions Count:</label>
+					<label for="Transitions" class="form-label">تعداد تراکنش ها:</label>
 					<InputNumber id="Transitions" class="form-control" @bind-Value="Model.Transitions" />
 				</div>
 
 				<div class="mb-3 text-left">
-					<button type="submit" class="btn btn-success btn-sm" title="Click to Generate Graph">
-						Generate
+					<button type="submit" class="btn btn-success btn-sm" title="جهت ایجاد کلیک کنید">
+						ایجاد
 					</button>
 				</div>
 
@@ -42,7 +42,7 @@
 
 	<div class="mb-2 d-flex justify-content-center">
 		<button class="btn btn-primary" @onclick="launchLoadGraphMethod">
-			Load a graph
+			بارگذاری یک گراف
 		</button>
 	</div>
 
@@ -52,34 +52,34 @@
 			<div class="row" style="width: 650px">
 				<div class="col-12 d-flex justify-content-between mt-3">
 					<span class="btn-outline-dark mt-2 mx-5">
-						Graph with 250 accounts, 15 stores and 375 transitions
+						یک گراف با 250 حساب، 15 پرتراکنش و 375 تراکنش
 					</span>
 					<button class="btn btn-outline-info" @onclick="() => LoadGraphMethod(1)">
-						Load
+						بارگذاری
 					</button>
 				</div>
 				<div class="col-12 d-flex justify-content-between mt-3">
 					<span class="btn-outline-dark mt-2 mx-5">
-						Graph with 500 accounts, 30 stores and 750 transitions
+						یک گراف با 500 حساب، 30 پرتراکنش و 750 تراکنش
 					</span>
 					<button class="btn btn-outline-primary" @onclick="() => LoadGraphMethod(2)">
-						Load
+						بارگذاری
 					</button>
 				</div>
 				<div class="col-12 d-flex justify-content-between mt-3">
 					<span class="btn-outline-dark mt-2 mx-5">
-						Graph with 1000 accounts, 90 stores and 1500 transitions
+						یک گراف با 1000 حساب، 90 پرتراکنش و 1500 تراکنش
 					</span>
 					<button class="btn btn-outline-success" @onclick="() => LoadGraphMethod(3)">
-						Load
+						بارگذاری
 					</button>
 				</div>
 				<div class="col-12 d-flex justify-content-between mt-3">
 					<span class="btn-outline-dark mt-2 mx-5">
-						Graph with 4000 accounts, 500 stores and 9000 transitions
+						یک گراف با 4000 حساب، 500 پرتراکنش و 9000 تراکنش
 					</span>
 					<button class="btn btn-outline-warning" @onclick="() => LoadGraphMethod(4)">
-						Load
+						بارگذاری
 					</button>
 				</div>
 				@if (open)
@@ -105,7 +105,7 @@
 {
     <div class="d-flex justify-content-center align-content-center fade-in">
 		<button class="btn btn-dark btn-lg" @onclick="launchGraphMethod">
-			Show Graph
+			گراف آماده است، جهت نمایش کلیک کنید
 		</button>
 	</div>
 
@@ -310,13 +310,13 @@
 			else if (count >= (range / 4) * 3 && count < range)
 			{
 				item.Color = "orange";
-				item.IconSize = 8;
+				item.IconSize = 9;
 				red++;
 			}
 			else if (count >= range)
 			{
 				item.Color = "red";
-				item.IconSize = 8 + (count - range) * 2;
+				item.IconSize = 12 + (count - range) * 2;
 				red++;
 			}
 		}

@@ -163,115 +163,18 @@ function refreshScale(id, top, left, scale) {
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-//function highchartsDG(id, transitions) {
-//    const el = document.getElementById(`${id}`)
-
-//    el.addEventListener('click', function () {
-//        Highcharts.chart(container2, {
-//            chart: {
-//                type: 'networkgraph',
-//                plotBorderWidth: 1
-//            },
-//            title: {
-//                text: 'Networkgraph initial positions'
-//            },
-//            plotOptions: {
-//                networkgraph: {
-//                    keys: ['from', 'to']
-//                }
-//            },
-//            series: [{
-//                layoutAlgorithm: {
-//                    enableSimulation: true,
-//                    initialPositions: function () {
-//                        const chart = this.series[0].chart,
-//                            width = chart.plotWidth,
-//                            height = chart.plotHeight;
-
-//                        this.nodes.forEach(function (node) {
-//                            // If initial positions were set previously, use that
-//                            // positions. Otherwise use random position:
-//                            node.plotX = node.plotX === undefined ?
-//                                Math.random() * width : node.plotX;
-//                            node.plotY = node.plotY === undefined ?
-//                                Math.random() * height : node.plotY;
-//                        });
-//                    }
-//                },
-//                name: 'K8',
-//                data: transitions,
-//            }]
-//        });
-//    });
-
-//}
-
-//*********************************************************************************************** */
-//*********************************************************************************************** */
-//*********************************************************************************************** */
 
 function highchartsDG(id, transitions, myNodesJson) {
+    console.log("jskhfdkdsh");
     const el = document.getElementById(`${id}`)
+
 
     var myNodes = JSON.parse(myNodesJson);
 
     el.addEventListener('click', function () {
-
-        //Highcharts.addEvent(
-        //    Highcharts.Series,
-        //    'afterSetOptions',
-        //    function (e) {
-
-        //        const colors = Highcharts.getOptions().colors,
-        //            nodes = {};
-
-        //        let i = 0;
-
-        //        if (e.options.id === 'NazmDb-Graph') {
-        //            e.options.data.forEach(function (link) {
-        //                if (link[0] === '34567') {
-        //                    nodes['34567'] = {
-        //                        id: '34567',
-        //                        marker: {
-        //                            radius:40
-        //                        }
-        //                    };
-        //                    nodes[link[1]] = {
-        //                        id: link[1],
-        //                        marker: {
-        //                            radius: 20
-        //                        },
-        //                        color: colors[i++]
-        //                    };
-        //                } else if (nodes[link[0]] && nodes[link[0]].color) {
-        //                    nodes[link[1]] = {
-        //                        id: link[1],
-        //                        color: nodes[link[0]].color
-        //                    };
-        //                }
-        //            });
-
-        //            e.options.nodes = Object.keys(nodes).map(function (id) {
-        //                return nodes[id];
-        //            });
-        //        }
-        //    }
-        //);
-
-
-
-
+        
         var t0 = performance.now();
-
-
-
-
-
         
         Highcharts.chart('container2', {
             chart: {
@@ -290,11 +193,14 @@ function highchartsDG(id, transitions, myNodesJson) {
 
                 networkgraph: {
                     keys: ['from', 'to'],
-                    draggable: false,
+                    draggable: true,
                     layoutAlgorithm: {
                         enableSimulation: false,
-                        initialPositions: "random",
-                        linkLength: 115,
+                        maxIterations: 180,
+                        integration: 'euler',
+                        initialPositions: "circle",
+                        gravitationalConstant: 0.09,
+                        //linkLength: 70,
                         //friction: -0.981,
                         
                     },
@@ -307,7 +213,6 @@ function highchartsDG(id, transitions, myNodesJson) {
                     }
                 },
                 series: {
-                    //draggable: false,
                     dataLabels: {
                         enabled: true,
                         linkFormat: '',
@@ -339,118 +244,6 @@ function highchartsDG(id, transitions, myNodesJson) {
     });
 }
 
-
-
-//*********************************************************************************************** */
-//*********************************************************************************************** */
-//*********************************************************************************************** */
-
-
-//function highchartsDG(id, transitions, myNodesJson) {
-//    const el = document.getElementById(`${id}`)
-
-//    var myNodes = JSON.parse(myNodesJson);
-
-//    el.addEventListener('click', function () {
-
-//        //Highcharts.addEvent(
-//        //    Highcharts.Series,
-//        //    'afterSetOptions',
-//        //    function (e) {
-
-//        //        const colors = Highcharts.getOptions().colors,
-//        //            nodes = {};
-
-//        //        let i = 0;
-
-//        //        if (e.options.id === 'NazmDb-Graph') {
-//        //            e.options.data.forEach(function (link) {
-//        //                if (link[0] === '34567') {
-//        //                    nodes['34567'] = {
-//        //                        id: '34567',
-//        //                        marker: {
-//        //                            radius:40
-//        //                        }
-//        //                    };
-//        //                    nodes[link[1]] = {
-//        //                        id: link[1],
-//        //                        marker: {
-//        //                            radius: 20
-//        //                        },
-//        //                        color: colors[i++]
-//        //                    };
-//        //                } else if (nodes[link[0]] && nodes[link[0]].color) {
-//        //                    nodes[link[1]] = {
-//        //                        id: link[1],
-//        //                        color: nodes[link[0]].color
-//        //                    };
-//        //                }
-//        //            });
-
-//        //            e.options.nodes = Object.keys(nodes).map(function (id) {
-//        //                return nodes[id];
-//        //            });
-//        //        }
-//        //    }
-//        //);
-
-        
-//        Highcharts.chart('container2', {
-//            chart: {
-//                type: 'networkgraph',
-//            },
-//            title: {
-//                text: 'Network Graph',
-//                align: 'left'
-//            },
-//            subtitle: {
-//                text: 'Nazmaran Co.',
-//                align: 'left'
-//            },
-
-//            plotOptions: {
-
-//                networkgraph: {
-//                    keys: ['from', 'to'],
-//                    layoutAlgorithm: {
-//                        enableSimulation: true,
-//                        linkLength: 90,
-//                        //friction: -0.9
-//                    },
-//                    point: {
-//                        events: {
-//                            click(e) {
-//                                handlePointClick(e.point);
-//                            }
-//                        }
-//                    }
-//                },
-//                series: {
-//                    dataLabels: {
-//                        enabled: true,
-//                        linkFormat: '',
-//                        style: {
-//                            fontSize: '1em',
-//                            fontWeight: 'normal'
-//                        }
-//                    },
-//                }
-//            },
-//            series: [{
-//                tooltip: {
-//                    nodeFormatter: function () {
-//                        //return `<table><tr><th colspan="2"><h4>${this.id}</h4><hr/></th></tr><tr><td style="color: ${this.marker.fillColor}">${this.id} </td><td style="text-align: right"><b>${this.id} EUR</b></td></tr></table>`;
-//                        return `<p style=""><b>${this.title}</b><br></br><b style="color: ${this.marker.fillColor}">${this.marker.radius} Link's</b><br>
-//                        ${this.description}</p>`;
-//                    },
-//                },
-//                id: 'NazmDb-Graph',
-//                nodes: myNodes,
-//                data: transitions,
-//            }],
-//        });
-//    });
-//}
 
 
 async function handlePointClick(e) {
@@ -487,7 +280,7 @@ function highchartsDGTwo(id, integration, linkLength, transitions, myNodesJson) 
                     layoutAlgorithm: {
                         enableSimulation: false,
                         initialPositions: "circle",
-                        linkLength: 110,
+                        //linkLength: 60,
                         integration: integration,
                         //linkLength: linkLength
                     },
@@ -925,11 +718,388 @@ function highchartsDGThree(id, transitions, myNodesJson) {
                 }, {
                     id: 'Italy',
                     color: 'black'
+                }, {
+                    id: 'Poland',
+                    color: 'black'
                 }]
             }]
 
         });
     });
 }
+
+
+//function EchartsGraph(id) {
+//    const el = document.getElementById(`${id}`)
+
+//    console.log(`${id}`)
+
+//    // Initialize the echarts instance based on the prepared dom
+//    var myChart = echarts.init(document.getElementById(`${id}`));
+
+//    // Specify the configuration items and data for the chart
+//    var option = {
+//        title: {
+//            text: 'ECharts Getting Started Example'
+//        },
+//        tooltip: {},
+//        legend: {
+//            data: ['sales']
+//        },
+//        xAxis: {
+//            data: ['Shirts', 'Cardigans', 'Chiffons', 'Pants', 'Heels', 'Socks']
+//        },
+//        yAxis: {},
+//        series: [
+//            {
+//                name: 'sales',
+//                type: 'bar',
+//                data: [5, 20, 36, 10, 10, 20]
+//            }
+//        ]
+//    };
+
+//    myChart.setOption(option);
+//}
+
+
+//function barChartInitial(id) {
+
+//    var myChart2 = echarts.init(document.getElementById(`${id}`));
+
+
+
+//    var option = {
+//        title: {
+//            text: 'چارت میله ای',
+//        },
+//        textStyle: {
+//            fontFamily: 'Iranian Sans'
+//        },
+//        tooltip: {
+//            trigger: 'item',
+//            axisPointer: {
+//                type = 'shadow',
+//            },
+//            textStyle: {
+//                fontFamily = "Iranian Sans",
+//            }
+//        },
+//        legend: {
+//            data: [ "جنگل", "کوهستان", "کویر", "دشت" ],
+//            textStyle: {
+//                fontFamily = "Iranian Sans",
+//            }
+//        },
+//        yAxis: {
+//            type: 'value',
+//        },
+//        xAxis: {
+//            type: 'category',
+//            boundaryGap: false,
+//            data: ["2012", "2013", "2014", "2015", "2016"]
+//        },
+//        series: [
+//            {
+//                name: 'جنگل',
+//                type: 'bar',
+//                label: {
+//                    show: true,
+//                    position = 'insideBottom',
+//                    align : 'center',
+//                    rotate: 90,
+//                    textStyle: {
+//                        fontFamily = "Iranian Sans",
+//                    }
+//                },
+//                data: [320, 332, 301, 334, 390],
+//            },
+//            {
+//                name: 'کوهستان',
+//                type: 'bar',
+//                label: {
+//                    show: true,
+//                    position = 'insideBottom',
+//                    align : 'center',
+//                    rotate: 90,
+//                    textStyle: {
+//                        fontFamily = "Iranian Sans",
+//                    }
+//                },
+//                data: [220, 182, 191, 234, 290],
+//            },
+//            {
+//                name: 'کویر',
+//                type: 'bar',
+//                label: {
+//                    show: true,
+//                    position = 'insideBottom',
+//                    align : 'center',
+//                    rotate: 90,
+//                    textStyle: {
+//                        fontFamily = "Iranian Sans",
+//                    }
+//                },
+//                data: [150, 232, 201, 154, 190],
+//            },
+//            {
+//                name: 'دشت',
+//                type: 'bar',
+//                label: {
+//                    show: true,
+//                    position = 'insideBottom',
+//                    align : 'center',
+//                    rotate: 90,
+//                    textStyle: {
+//                        fontFamily = "Iranian Sans",
+//                    }
+//                },
+//                data: [98, 77, 101, 99, 40],
+//            },
+
+//        ]
+//    };
+
+//    myChart2.setOption(option);
+//};
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//function highchartsDG(id, transitions) {
+//    const el = document.getElementById(`${id}`)
+
+//    el.addEventListener('click', function () {
+//        Highcharts.chart(container2, {
+//            chart: {
+//                type: 'networkgraph',
+//                plotBorderWidth: 1
+//            },
+//            title: {
+//                text: 'Networkgraph initial positions'
+//            },
+//            plotOptions: {
+//                networkgraph: {
+//                    keys: ['from', 'to']
+//                }
+//            },
+//            series: [{
+//                layoutAlgorithm: {
+//                    enableSimulation: true,
+//                    initialPositions: function () {
+//                        const chart = this.series[0].chart,
+//                            width = chart.plotWidth,
+//                            height = chart.plotHeight;
+
+//                        this.nodes.forEach(function (node) {
+//                            // If initial positions were set previously, use that
+//                            // positions. Otherwise use random position:
+//                            node.plotX = node.plotX === undefined ?
+//                                Math.random() * width : node.plotX;
+//                            node.plotY = node.plotY === undefined ?
+//                                Math.random() * height : node.plotY;
+//                        });
+//                    }
+//                },
+//                name: 'K8',
+//                data: transitions,
+//            }]
+//        });
+//    });
+
+//}
+
+//*********************************************************************************************** */
+//*********************************************************************************************** */
+//*********************************************************************************************** */+
+
+
+
+
+
+
+
+
+
+
+
+
+//Highcharts.addEvent(
+//    Highcharts.Series,
+//    'afterSetOptions',
+//    function (e) {
+
+//        const colors = Highcharts.getOptions().colors,
+//            nodes = {};
+
+//        let i = 0;
+
+//        if (e.options.id === 'NazmDb-Graph') {
+//            e.options.data.forEach(function (link) {
+//                if (link[0] === '34567') {
+//                    nodes['34567'] = {
+//                        id: '34567',
+//                        marker: {
+//                            radius:40
+//                        }
+//                    };
+//                    nodes[link[1]] = {
+//                        id: link[1],
+//                        marker: {
+//                            radius: 20
+//                        },
+//                        color: colors[i++]
+//                    };
+//                } else if (nodes[link[0]] && nodes[link[0]].color) {
+//                    nodes[link[1]] = {
+//                        id: link[1],
+//                        color: nodes[link[0]].color
+//                    };
+//                }
+//            });
+
+//            e.options.nodes = Object.keys(nodes).map(function (id) {
+//                return nodes[id];
+//            });
+//        }
+//    }
+//);
+
+
+
+
+
+
+
+//*********************************************************************************************** */
+//*********************************************************************************************** */
+//*********************************************************************************************** */
+
+
+//function highchartsDG(id, transitions, myNodesJson) {
+//    const el = document.getElementById(`${id}`)
+
+//    var myNodes = JSON.parse(myNodesJson);
+
+//    el.addEventListener('click', function () {
+
+//        //Highcharts.addEvent(
+//        //    Highcharts.Series,
+//        //    'afterSetOptions',
+//        //    function (e) {
+
+//        //        const colors = Highcharts.getOptions().colors,
+//        //            nodes = {};
+
+//        //        let i = 0;
+
+//        //        if (e.options.id === 'NazmDb-Graph') {
+//        //            e.options.data.forEach(function (link) {
+//        //                if (link[0] === '34567') {
+//        //                    nodes['34567'] = {
+//        //                        id: '34567',
+//        //                        marker: {
+//        //                            radius:40
+//        //                        }
+//        //                    };
+//        //                    nodes[link[1]] = {
+//        //                        id: link[1],
+//        //                        marker: {
+//        //                            radius: 20
+//        //                        },
+//        //                        color: colors[i++]
+//        //                    };
+//        //                } else if (nodes[link[0]] && nodes[link[0]].color) {
+//        //                    nodes[link[1]] = {
+//        //                        id: link[1],
+//        //                        color: nodes[link[0]].color
+//        //                    };
+//        //                }
+//        //            });
+
+//        //            e.options.nodes = Object.keys(nodes).map(function (id) {
+//        //                return nodes[id];
+//        //            });
+//        //        }
+//        //    }
+//        //);
+
+
+//        Highcharts.chart('container2', {
+//            chart: {
+//                type: 'networkgraph',
+//            },
+//            title: {
+//                text: 'Network Graph',
+//                align: 'left'
+//            },
+//            subtitle: {
+//                text: 'Nazmaran Co.',
+//                align: 'left'
+//            },
+
+//            plotOptions: {
+
+//                networkgraph: {
+//                    keys: ['from', 'to'],
+//                    layoutAlgorithm: {
+//                        enableSimulation: true,
+//                        linkLength: 90,
+//                        //friction: -0.9
+//                    },
+//                    point: {
+//                        events: {
+//                            click(e) {
+//                                handlePointClick(e.point);
+//                            }
+//                        }
+//                    }
+//                },
+//                series: {
+//                    dataLabels: {
+//                        enabled: true,
+//                        linkFormat: '',
+//                        style: {
+//                            fontSize: '1em',
+//                            fontWeight: 'normal'
+//                        }
+//                    },
+//                }
+//            },
+//            series: [{
+//                tooltip: {
+//                    nodeFormatter: function () {
+//                        //return `<table><tr><th colspan="2"><h4>${this.id}</h4><hr/></th></tr><tr><td style="color: ${this.marker.fillColor}">${this.id} </td><td style="text-align: right"><b>${this.id} EUR</b></td></tr></table>`;
+//                        return `<p style=""><b>${this.title}</b><br></br><b style="color: ${this.marker.fillColor}">${this.marker.radius} Link's</b><br>
+//                        ${this.description}</p>`;
+//                    },
+//                },
+//                id: 'NazmDb-Graph',
+//                nodes: myNodes,
+//                data: transitions,
+//            }],
+//        });
+//    });
+//}
+
+
+
+
+
+
+
+
 
 
