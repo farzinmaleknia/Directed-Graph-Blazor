@@ -6,7 +6,7 @@
         if (EdgeFilterMethod(EdgeFilter, edge))
         {
             <div style='border: none; border-top: 1px dashed gray; z-index: 10; color:gray; padding:0px; margin:0px; height: 0.1px; background-color: none; line-height:0.1px; position:absolute; left: @(edge.Cx)px; top:@(edge.Cy )px; width:@(edge.Length)px; -moz-transform:rotate(@(edge.Angle)deg); -webkit-transform:rotate(@(edge.Angle)deg); -o-transform:rotate(@(edge.Angle)deg); -ms-transform:rotate(@(edge.Angle)deg); transform:rotate(@(edge.Angle)deg);'>
-                <div style="padding-left: @($"{(edge.End.IconSize / 2)* 0.6}px"); direction: rtl" title="@($"از : {edge.Start.Name} \nبه : {edge.End.Name}")">
+                <div style="padding-left: @($"{(edge.Start.IconSize / 2)* 0.6}px"); direction: rtl" title="@($"از : {edge.Start.Name} \nبه : {edge.End.Name}")">
                    @arrow
                 </div>
             </div>

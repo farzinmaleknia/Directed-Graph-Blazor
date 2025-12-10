@@ -152,16 +152,12 @@
 	public string EdgeFilterValue { get; set; }
 	private int EdgeFilterCounter { get; set; }
 
-	private bool stateNeeded { get; set; }
-
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
 
 		passedVertex = new Classes.Vertex();
 		passedGroup = new List<Classes.Vertex>();
-
-		stateNeeded = true;
 
 		EdgeFilterValue = "";
 		EdgeFilterCounter = 0;

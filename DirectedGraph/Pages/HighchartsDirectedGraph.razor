@@ -13,7 +13,7 @@
         <button id="button1" class="btn btn-primary mx-2">
             نمایش
         </button>
-@*         <button id="button2" class="btn btn-success mx-2">
+        <button id="button2" class="btn btn-success mx-2">
             نمونه یک
         </button>
         <button id="button3" class="btn btn-warning mx-2">
@@ -22,7 +22,7 @@
 
         <button id="ModalForHighChart" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#HighchartPointModal">
             click
-        </button> *@
+        </button>
     </div>
 
 }
@@ -60,7 +60,7 @@
 
 
 
-@*<div class="modal fade" id="HighchartPointModalLabel" tabindex="-1" aria-labelledby="HighchartPointModalLabel" aria-hidden="true">
+<div class="modal fade" id="HighchartPointModalLabel" tabindex="-1" aria-labelledby="HighchartPointModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
@@ -91,7 +91,7 @@
             }
         </div>
     </div>
-</div>*@
+</div>
 
 @code {
     public List<List<string>> Transitions { get; set; }
@@ -122,17 +122,15 @@
         _title = "blank";
         ShowModal = false;
 
-        await FetchAllData();
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await FetchAllData();
             //var dotNetReference = DotNetObjectReference.Create(this);
             //await JsRuntime.InvokeVoidAsync("handleDotNetCallback", null, dotNetReference);
-
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -145,13 +143,16 @@
         {
             //var test = await httpClient.GetAsync("https://192.168.1.4:44395/api/AccountRelations/FetchAllGet");
 
-            var responseTransitions = await httpClient.PostAsync("https://nazmdb:44395/api/AccountRelations/FetchAllPost", null);
-            var dataTransitions = await responseTransitions.Content.ReadAsStringAsync();
+            //var responseTransitions = await httpClient.PostAsync("https://192.168.1.35:44379/api/AccountRelations/FetchAllPost", null);
+            //var responseTransitions = await httpClient.PostAsync("https://nazmdb:44395/api/AccountRelations/FetchAllPost", null);
+            //var dataTransitions = await responseTransitions.Content.ReadAsStringAsync();
+            var dataTransitions = "[{'FromAccountNo':12345,'ToAccountNo':13},{'FromAccountNo':37,'ToAccountNo':369005987},{ 'FromAccountNo':13,'ToAccountNo':48},{ 'FromAccountNo':28,'ToAccountNo':12},{ 'FromAccountNo':28,'ToAccountNo':14},{ 'FromAccountNo':28,'ToAccountNo':40},{ 'FromAccountNo':32,'ToAccountNo':43},{ 'FromAccountNo':28,'ToAccountNo':44},{ 'FromAccountNo':35,'ToAccountNo':34},{ 'FromAccountNo':35,'ToAccountNo':38},{ 'FromAccountNo':13,'ToAccountNo':10},{ 'FromAccountNo':30,'ToAccountNo':11},{ 'FromAccountNo':35,'ToAccountNo':38},{ 'FromAccountNo':32,'ToAccountNo':29},{ 'FromAccountNo':35,'ToAccountNo':41},{ 'FromAccountNo':35,'ToAccountNo':33},{ 'FromAccountNo':35,'ToAccountNo':33},{ 'FromAccountNo':30,'ToAccountNo':42},{ 'FromAccountNo':28,'ToAccountNo':12},{ 'FromAccountNo':32,'ToAccountNo':31},{ 'FromAccountNo':30,'ToAccountNo':18},{ 'FromAccountNo':13,'ToAccountNo':36},{ 'FromAccountNo':37,'ToAccountNo':24},{ 'FromAccountNo':32,'ToAccountNo':8},{ 'FromAccountNo':32,'ToAccountNo':47},{ 'FromAccountNo':35,'ToAccountNo':15},{ 'FromAccountNo':35,'ToAccountNo':25},{ 'FromAccountNo':13,'ToAccountNo':27},{ 'FromAccountNo':37,'ToAccountNo':17},{ 'FromAccountNo':28,'ToAccountNo':12},{ 'FromAccountNo':35,'ToAccountNo':19},{ 'FromAccountNo':30,'ToAccountNo':21},{ 'FromAccountNo':30,'ToAccountNo':45},{ 'FromAccountNo':13,'ToAccountNo':39},{ 'FromAccountNo':37,'ToAccountNo':22},{ 'FromAccountNo':23456,'ToAccountNo':28},{ 'FromAccountNo':23456,'ToAccountNo':30},{ 'FromAccountNo':12345,'ToAccountNo':35},{ 'FromAccountNo':12345,'ToAccountNo':32},{ 'FromAccountNo':12345,'ToAccountNo':37},{ 'FromAccountNo':12345,'ToAccountNo':23456},{ 'FromAccountNo':34567,'ToAccountNo':50},{ 'FromAccountNo':50,'ToAccountNo':51},{ 'FromAccountNo':50,'ToAccountNo':52},{ 'FromAccountNo':50,'ToAccountNo':53},{ 'FromAccountNo':34567,'ToAccountNo':60},{ 'FromAccountNo':60,'ToAccountNo':61},{ 'FromAccountNo':60,'ToAccountNo':62}]";
             var transitions = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(dataTransitions);
 
 
-            var responseAccounts = await httpClient.PostAsync("https://nazmdb:44395/api/AccountColors/FetchAllPost", null);
-            var dataAccounts = await responseAccounts.Content.ReadAsStringAsync();
+            //var responseAccounts = await httpClient.PostAsync("https://nazmdb:44395/api/AccountColors/FetchAllPost", null);
+            //var dataAccounts = await responseAccounts.Content.ReadAsStringAsync();
+            var dataAccounts = "[{'AccountNo':12345,'AccountCount':30,'AccountColor':'red','Title':'اکبر اکبری','Descript':'0123456789'},{'AccountNo':23456,'AccountCount':30,'AccountColor':'red','Title':'اکبر اکبری','Descript':'0123456789'},{ 'AccountNo':34567,'AccountCount':30,'AccountColor':'red','Title':'کلیم کلیم زاده','Descript':'2345678901'},{ 'AccountNo':369005987,'AccountCount':6,'AccountColor':'green','Title':'تست اوراکل تست اوراکل','Descript':'7000000000'},{ 'AccountNo':8,'AccountCount':6,'AccountColor':'green','Title':'مشتري 8 ن خ مشتري 8','Descript':'8000000000'},{ 'AccountNo':10,'AccountCount':6,'AccountColor':'green','Title':'مشتري 10 ن خ مشتري 10','Descript':'1000000000'},{ 'AccountNo':11,'AccountCount':6,'AccountColor':'green','Title':'مشتري 11 ن خ مشتري 11','Descript':'1100000000'},{ 'AccountNo':12,'AccountCount':6,'AccountColor':'green','Title':'مشتري 12 ن خ مشتري 12','Descript':'1200000000'},{ 'AccountNo':13,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 13 ن خ مشتري 13','Descript':'1300000000'},{ 'AccountNo':14,'AccountCount':6,'AccountColor':'green','Title':'مشتري 14 ن خ مشتري 14','Descript':'1400000000'},{ 'AccountNo':15,'AccountCount':6,'AccountColor':'green','Title':'مشتري 15 ن خ مشتري 15','Descript':'1500000000'},{ 'AccountNo':17,'AccountCount':6,'AccountColor':'green','Title':'مشتري 17 ن خ مشتري 17','Descript':'1700000000'},{ 'AccountNo':18,'AccountCount':6,'AccountColor':'green','Title':'مشتري 18 ن خ مشتري 18','Descript':'1800000000'},{ 'AccountNo':19,'AccountCount':6,'AccountColor':'green','Title':'مشتري 19 ن خ مشتري 19','Descript':'1900000000'},{ 'AccountNo':21,'AccountCount':6,'AccountColor':'green','Title':'مشتري 21 ن خ مشتري 21','Descript':'2100000000'},{ 'AccountNo':22,'AccountCount':6,'AccountColor':'green','Title':'مشتري 22 ن خ مشتري 22','Descript':'2200000000'},{ 'AccountNo':24,'AccountCount':6,'AccountColor':'green','Title':'مشتري 24 ن خ مشتري 24','Descript':'2400000000'},{ 'AccountNo':25,'AccountCount':6,'AccountColor':'green','Title':'مشتري 25 ن خ مشتري 25','Descript':'2500000000'},{ 'AccountNo':27,'AccountCount':6,'AccountColor':'green','Title':'مشتري 27 ن خ مشتري 27','Descript':'2700000000'},{ 'AccountNo':28,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 28 ن خ مشتري 28','Descript':'2800000000'},{ 'AccountNo':29,'AccountCount':6,'AccountColor':'green','Title':'مشتري 29 ن خ مشتري 29','Descript':'2900000000'},{ 'AccountNo':30,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 30 ن خ مشتري 30','Descript':'3000000000'},{ 'AccountNo':31,'AccountCount':6,'AccountColor':'green','Title':'مشتري 31 ن خ مشتري 31','Descript':'3100000000'},{ 'AccountNo':32,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 32 ن خ مشتري 32','Descript':'3200000000'},{ 'AccountNo':33,'AccountCount':6,'AccountColor':'green','Title':'مشتري 33 ن خ مشتري 33','Descript':'3300000000'},{ 'AccountNo':34,'AccountCount':6,'AccountColor':'green','Title':'مشتري 34 ن خ مشتري 34','Descript':'3400000000'},{ 'AccountNo':35,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 35 ن خ مشتري 35','Descript':'3500000000'},{ 'AccountNo':36,'AccountCount':6,'AccountColor':'green','Title':'مشتري 36 ن خ مشتري 36','Descript':'3600000000'},{ 'AccountNo':37,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 37 ن خ مشتري 37','Descript':'3700000000'},{ 'AccountNo':38,'AccountCount':6,'AccountColor':'green','Title':'مشتري 38 ن خ مشتري 38','Descript':'3800000000'},{ 'AccountNo':39,'AccountCount':6,'AccountColor':'green','Title':'مشتري 39 ن خ مشتري 39','Descript':'3900000000'},{ 'AccountNo':40,'AccountCount':6,'AccountColor':'green','Title':'مشتري 40 ن خ مشتري 40','Descript':'4000000000'},{ 'AccountNo':41,'AccountCount':6,'AccountColor':'green','Title':'مشتري 41 ن خ مشتري 41','Descript':'4100000000'},{ 'AccountNo':42,'AccountCount':6,'AccountColor':'green','Title':'مشتري 42 ن خ مشتري 42','Descript':'4200000000'},{ 'AccountNo':43,'AccountCount':6,'AccountColor':'green','Title':'مشتري 43 ن خ مشتري 43','Descript':'4300000000'},{ 'AccountNo':44,'AccountCount':6,'AccountColor':'green','Title':'مشتري 44 ن خ مشتري 44','Descript':'4400000000'},{ 'AccountNo':45,'AccountCount':6,'AccountColor':'green','Title':'مشتري 45 ن خ مشتري 45','Descript':'4500000000'},{ 'AccountNo':47,'AccountCount':6,'AccountColor':'green','Title':'مشتري 47 ن خ مشتري 47','Descript':'4700000000'},{ 'AccountNo':48,'AccountCount':6,'AccountColor':'green','Title':'مشتري 48 ن خ مشتري 48','Descript':'4800000000'},{ 'AccountNo':50,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 50 ن خ مشتري 50','Descript':'5000000000'},{ 'AccountNo':60,'AccountCount':18,'AccountColor':'yellow','Title':'مشتري 60 ن خ مشتري 60','Descript':'6000000000'},{ 'AccountNo':51,'AccountCount':6,'AccountColor':'green','Title':'مشتري 51 ن خ مشتري 51','Descript':'5100000000'},{ 'AccountNo':52,'AccountCount':6,'AccountColor':'green','Title':'مشتري 52 ن خ مشتري 52','Descript':'5200000000'},{ 'AccountNo':53,'AccountCount':6,'AccountColor':'green','Title':'مشتري 53 ن خ مشتري 53','Descript':'5300000000'},{ 'AccountNo':61,'AccountCount':6,'AccountColor':'green','Title':'مشتري 61 ن خ مشتري 61','Descript':'6100000000'},{ 'AccountNo':62,'AccountCount':6,'AccountColor':'green','Title':'مشتري 62 ن خ مشتري 62','Descript':'6200000000'}]";
             var accounts = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.Account>>(dataAccounts);
 
 
@@ -248,8 +249,8 @@
         string jsonNodes = Newtonsoft.Json.JsonConvert.SerializeObject(Nodes);
 
         await JsRuntime.InvokeVoidAsync("highchartsDG", "button1", Transitions, jsonNodes);
-        await JsRuntime.InvokeVoidAsync("highchartsDGTwo", "button2", "euler", 120, Transitions, jsonNodes);
-        await JsRuntime.InvokeVoidAsync("highchartsDGThree", "button3", Transitions, jsonNodes);
+        // await JsRuntime.InvokeVoidAsync("highchartsDGTwo", "button2", "euler", 120, Transitions, jsonNodes);
+        // await JsRuntime.InvokeVoidAsync("highchartsDGThree", "button3", Transitions, jsonNodes);
 
 
     }
